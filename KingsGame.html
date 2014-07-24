@@ -1,0 +1,35 @@
+<html>
+<head>
+  <title>Kings</title>
+
+  <script type="text/javascript" src="libs/jquery-1.11.1.min.js"></script>
+  <script type="text/javascript" src="KingsGame.js"></script>
+  <script type="text/javascript" src="PlayingCards.js"></script>
+  <script type="text/javascript" src="GameBoard.js"></script>
+  <script type="text/javascript" src="DisplayBoard.js"></script>
+
+  <style type="text/css">
+    body 
+    {
+      background-color: rgb(38, 38, 38);
+      color: white;
+    }
+
+    canvas 
+    {
+      border: 1px solid rgba(242, 198, 65, 0.1);
+      margin: 50px auto 0 auto;
+      display: block;
+    }
+  </style>
+  <script type="text/javascript">
+    startup = function() {
+    kingsGame = new KingsGame();
+    kingsGame.start();
+  };
+  </script>
+</head>
+<body onload="startup()">
+  <div class="game-board" id="gameboard"></div>
+</body>
+</html>
