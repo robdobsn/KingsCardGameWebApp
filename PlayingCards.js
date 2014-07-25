@@ -43,18 +43,14 @@ PlayingCards = (function() {
       suitName: suitName,
       rankIdx: rankIdx,
       rankName: this.rankNames[rankIdx],
-      cardFileNameSvg: "card_" + (rankIdx + 1) + "_" + suitName + ".svg",
       cardFileNamePng: "card_" + (rankIdx + 1) + "_" + suitName + ".png"
     };
     return cardInfo;
   };
 
-  PlayingCards.prototype.getCardFileName = function(cardId, useSvg) {
+  PlayingCards.prototype.getCardFileName = function(cardId) {
     if (cardId < 0) {
-      return "card_empty" + (useSvg ? ".svg" : ".png");
-    }
-    if (useSvg) {
-      return this.getCardInfo(cardId).cardFileNameSvg;
+      return "card_empty.png";
     }
     return this.getCardInfo(cardId).cardFileNamePng;
   };

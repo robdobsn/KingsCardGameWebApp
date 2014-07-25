@@ -15,8 +15,21 @@ class GameBoard
 			@board.push boardRow
 		return true
 
-	getBoard: () ->
-		return @board
+	removeAces: () ->
+		gapCardId = -1
+		for rowIdx in [0..@numRows-1]
+			for colIdx in [0..@numCols-1]
+				cardId = @board[rowIdx][colIdx]
+				if @playingCards.getCardInfo(cardId).rankIdx == @playingCards.AceId
+					@board[rowIdx][colIdx] = gapCardId
+					gapCardId -= 1
+	
+	getCardId: (rowIdx, colIdx) ->
+		return @board[rowIdx][colIdx]
+
+	getCardFileName: (rowIdx, colIdx) ->
+		cardId = @board[rowIdx][colIdx]
+		return @playingCards.getCardFileName(cardId)
 
 	getCardToLeftInfo: (cardId) ->
 		for row, rowIdx in @board

@@ -4,18 +4,11 @@ class KingsGame
 	constructor: () ->
 		@playingCards = new PlayingCards()
 		@gameBoard = new GameBoard(@playingCards)
-		@displayBoard = new DisplayBoard(@selCellCallback, @dragCellCallback, @selCompleteCallback, @clickCallback, @playingCards, false)
+		@displayBoard = new DisplayBoard(@selCellCallback, @dragCellCallback, @selCompleteCallback, @clickCallback, @playingCards)
 
 	start: () ->
 		@gameBoard.deal(@playingCards)
-		# Remove Aces
-		board = @gameBoard.getBoard()
-		gapCardId = -1
-		for row, rowIdx in board
-			for cardId, colIdx in row
-				if @playingCards.getCardInfo(cardId).rankIdx == @playingCards.AceId
-					board[rowIdx][colIdx] = gapCardId
-					gapCardId -= 1
+		@gameBoard.removeAces()
 		@playGame()
 
 	playGame: () ->

@@ -25,8 +25,37 @@ GameBoard = (function() {
     return true;
   };
 
-  GameBoard.prototype.getBoard = function() {
-    return this.board;
+  GameBoard.prototype.removeAces = function() {
+    var cardId, colIdx, gapCardId, rowIdx, _i, _ref, _results;
+    gapCardId = -1;
+    _results = [];
+    for (rowIdx = _i = 0, _ref = this.numRows - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; rowIdx = 0 <= _ref ? ++_i : --_i) {
+      _results.push((function() {
+        var _j, _ref1, _results1;
+        _results1 = [];
+        for (colIdx = _j = 0, _ref1 = this.numCols - 1; 0 <= _ref1 ? _j <= _ref1 : _j >= _ref1; colIdx = 0 <= _ref1 ? ++_j : --_j) {
+          cardId = this.board[rowIdx][colIdx];
+          if (this.playingCards.getCardInfo(cardId).rankIdx === this.playingCards.AceId) {
+            this.board[rowIdx][colIdx] = gapCardId;
+            _results1.push(gapCardId -= 1);
+          } else {
+            _results1.push(void 0);
+          }
+        }
+        return _results1;
+      }).call(this));
+    }
+    return _results;
+  };
+
+  GameBoard.prototype.getCardId = function(rowIdx, colIdx) {
+    return this.board[rowIdx][colIdx];
+  };
+
+  GameBoard.prototype.getCardFileName = function(rowIdx, colIdx) {
+    var cardId;
+    cardId = this.board[rowIdx][colIdx];
+    return this.playingCards.getCardFileName(cardId);
   };
 
   GameBoard.prototype.getCardToLeftInfo = function(cardId) {

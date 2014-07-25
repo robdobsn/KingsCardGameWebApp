@@ -26,15 +26,12 @@ class PlayingCards
 			suitName: suitName
 			rankIdx: rankIdx
 			rankName: @rankNames[rankIdx]
-			cardFileNameSvg: "card_" + (rankIdx+1) + "_" + suitName + ".svg"
 			cardFileNamePng: "card_" + (rankIdx+1) + "_" + suitName + ".png"
 		return cardInfo
 
-	getCardFileName: (cardId, useSvg) ->
+	getCardFileName: (cardId) ->
 		if cardId < 0
-			return "card_empty" + if useSvg then ".svg" else ".png"
-		if useSvg
-			return @getCardInfo(cardId).cardFileNameSvg
+			return "card_empty.png"
 		return @getCardInfo(cardId).cardFileNamePng
 
 	shuffle: (deck) ->

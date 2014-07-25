@@ -3,13 +3,12 @@ var DisplayBoard,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
 DisplayBoard = (function() {
-  function DisplayBoard(selCellCallback, dragCallback, selCompleteCallback, clickCallback, playingCards, useSvg) {
+  function DisplayBoard(selCellCallback, dragCallback, selCompleteCallback, clickCallback, playingCards) {
     this.selCellCallback = selCellCallback;
     this.dragCallback = dragCallback;
     this.selCompleteCallback = selCompleteCallback;
     this.clickCallback = clickCallback;
     this.playingCards = playingCards;
-    this.useSvg = useSvg;
     this.onCardClick = __bind(this.onCardClick, this);
     this.onMouseup = __bind(this.onMouseup, this);
     this.onMousedown = __bind(this.onMousedown, this);
@@ -18,25 +17,19 @@ DisplayBoard = (function() {
   }
 
   DisplayBoard.prototype.showGameState = function(gameBoard) {
-    var board, cardFileName, cardHeight, cardId, cardWidth, displayHeight, displayWidth, row, rowIdx, _i, _j, _len, _len1,
+    var cardFileName, cardHeight, cardId, cardWidth, colIdx, displayHeight, displayWidth, rowIdx, _i, _j, _ref, _ref1,
       _this = this;
     displayWidth = $(window).width() - 50;
     displayHeight = $(window).height();
     cardWidth = displayWidth / gameBoard.numCols;
     cardHeight = cardWidth * 1.545;
     $('.game-board').html("");
-    board = gameBoard.getBoard();
-    for (rowIdx = _i = 0, _len = board.length; _i < _len; rowIdx = ++_i) {
-      row = board[rowIdx];
+    for (rowIdx = _i = 0, _ref = gameBoard.numRows - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; rowIdx = 0 <= _ref ? ++_i : --_i) {
       $('.game-board').append("<div class='row' id='row" + rowIdx + "'></div>");
-      for (_j = 0, _len1 = row.length; _j < _len1; _j++) {
-        cardId = row[_j];
-        cardFileName = this.playingCards.getCardFileName(cardId, this.useSvg);
-        if (this.useSvg) {
-          $("#row" + rowIdx).append("<object type='image/svg+xml' id='cardid" + cardId + "' width='50' height='80' data='cards/" + cardFileName + "'></object>");
-        } else {
-          $("#row" + rowIdx).append("<img id='cardid" + cardId + "' class='card' width='" + cardWidth + "px' height='" + cardHeight + "px' src='cards/" + cardFileName + "'></img>");
-        }
+      for (colIdx = _j = 0, _ref1 = gameBoard.numCols - 1; 0 <= _ref1 ? _j <= _ref1 : _j >= _ref1; colIdx = 0 <= _ref1 ? ++_j : --_j) {
+        cardId = gameBoard.getCardId(rowIdx, colIdx);
+        cardFileName = gameBoard.getCardFileName(rowIdx, colIdx);
+        $("#row" + rowIdx).append("<img id='cardid" + cardId + "' class='card' width='" + cardWidth + "px' height='" + cardHeight + "px' src='cards/" + cardFileName + "'></img>");
       }
     }
     $('.card').draggable({

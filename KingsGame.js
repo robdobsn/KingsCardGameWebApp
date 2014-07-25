@@ -8,24 +8,12 @@ KingsGame = (function() {
     this.clickCallback = __bind(this.clickCallback, this);
     this.playingCards = new PlayingCards();
     this.gameBoard = new GameBoard(this.playingCards);
-    this.displayBoard = new DisplayBoard(this.selCellCallback, this.dragCellCallback, this.selCompleteCallback, this.clickCallback, this.playingCards, false);
+    this.displayBoard = new DisplayBoard(this.selCellCallback, this.dragCellCallback, this.selCompleteCallback, this.clickCallback, this.playingCards);
   }
 
   KingsGame.prototype.start = function() {
-    var board, cardId, colIdx, gapCardId, row, rowIdx, _i, _j, _len, _len1;
     this.gameBoard.deal(this.playingCards);
-    board = this.gameBoard.getBoard();
-    gapCardId = -1;
-    for (rowIdx = _i = 0, _len = board.length; _i < _len; rowIdx = ++_i) {
-      row = board[rowIdx];
-      for (colIdx = _j = 0, _len1 = row.length; _j < _len1; colIdx = ++_j) {
-        cardId = row[colIdx];
-        if (this.playingCards.getCardInfo(cardId).rankIdx === this.playingCards.AceId) {
-          board[rowIdx][colIdx] = gapCardId;
-          gapCardId -= 1;
-        }
-      }
-    }
+    this.gameBoard.removeAces();
     return this.playGame();
   };
 
