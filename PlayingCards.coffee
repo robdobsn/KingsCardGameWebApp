@@ -4,6 +4,9 @@ class PlayingCards
 	suitNames: [ 'club', 'diamond', 'heart', 'spade' ]
 	rankNames: [ '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'Jack', 'Queen', 'King' ]
 	dealNextIdx: 0
+	AceId: 0
+	TwoId: 1
+	KingId: 12
 
 	constructor: () ->
 		@deck = @createUnsorted()
@@ -28,7 +31,7 @@ class PlayingCards
 		return cardInfo
 
 	getCardFileName: (cardId, useSvg) ->
-		if cardId == -1
+		if cardId < 0
 			return "card_empty" + if useSvg then ".svg" else ".png"
 		if useSvg
 			return @getCardInfo(cardId).cardFileNameSvg
@@ -52,3 +55,9 @@ class PlayingCards
 		@dealNextIdx += 1
 		@dealNextIdx = @dealNextIdx % @cardsInDeck
 		return card
+
+	findNextCardInSameSuit: (cardId) ->
+		cardInfo = @getCardInfo(cardId)
+		if cardInfo.rankIdx == @KingId
+			return -1
+		return cardId + 1

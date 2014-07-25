@@ -12,6 +12,12 @@ PlayingCards = (function() {
 
   PlayingCards.prototype.dealNextIdx = 0;
 
+  PlayingCards.prototype.AceId = 0;
+
+  PlayingCards.prototype.TwoId = 1;
+
+  PlayingCards.prototype.KingId = 12;
+
   function PlayingCards() {
     this.deck = this.createUnsorted();
     this.deck = this.shuffle(this.deck);
@@ -44,7 +50,7 @@ PlayingCards = (function() {
   };
 
   PlayingCards.prototype.getCardFileName = function(cardId, useSvg) {
-    if (cardId === -1) {
+    if (cardId < 0) {
       return "card_empty" + (useSvg ? ".svg" : ".png");
     }
     if (useSvg) {
@@ -72,6 +78,15 @@ PlayingCards = (function() {
     this.dealNextIdx += 1;
     this.dealNextIdx = this.dealNextIdx % this.cardsInDeck;
     return card;
+  };
+
+  PlayingCards.prototype.findNextCardInSameSuit = function(cardId) {
+    var cardInfo;
+    cardInfo = this.getCardInfo(cardId);
+    if (cardInfo.rankIdx === this.KingId) {
+      return -1;
+    }
+    return cardId + 1;
   };
 
   return PlayingCards;

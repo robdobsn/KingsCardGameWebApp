@@ -6,7 +6,8 @@ GameBoard = (function() {
 
   GameBoard.prototype.numCols = 13;
 
-  function GameBoard() {
+  function GameBoard(playingCards) {
+    this.playingCards = playingCards;
     this.board = [];
   }
 
@@ -26,6 +27,92 @@ GameBoard = (function() {
 
   GameBoard.prototype.getBoard = function() {
     return this.board;
+  };
+
+  GameBoard.prototype.getCardToLeftInfo = function(cardId) {
+    var cardIdx, chkCardId, row, rowIdx, _i, _j, _len, _len1, _ref;
+    _ref = this.board;
+    for (rowIdx = _i = 0, _len = _ref.length; _i < _len; rowIdx = ++_i) {
+      row = _ref[rowIdx];
+      for (cardIdx = _j = 0, _len1 = row.length; _j < _len1; cardIdx = ++_j) {
+        chkCardId = row[cardIdx];
+        if (chkCardId === cardId) {
+          if (cardIdx === 0) {
+            return -1;
+          }
+          return this.board[rowIdx][cardIdx - 1];
+        }
+      }
+    }
+    return -2;
+  };
+
+  GameBoard.prototype.getLocnOfCard = function(cardId) {
+    var chkCardId, colIdx, row, rowIdx, _i, _j, _len, _len1, _ref;
+    _ref = this.board;
+    for (rowIdx = _i = 0, _len = _ref.length; _i < _len; rowIdx = ++_i) {
+      row = _ref[rowIdx];
+      for (colIdx = _j = 0, _len1 = row.length; _j < _len1; colIdx = ++_j) {
+        chkCardId = row[colIdx];
+        if (chkCardId === cardId) {
+          return [true, rowIdx, colIdx];
+        }
+      }
+    }
+    return [false, 0, 0];
+  };
+
+  GameBoard.prototype.moveValidCardToEmptyPlace = function(toCardId) {
+    var cardToLeftId, fromCardId;
+    if (toCardId < 0) {
+      cardToLeftId = this.getCardToLeftInfo(toCardId);
+      if (cardToLeftId >= 0) {
+        fromCardId = this.playingCards.findNextCardInSameSuit(cardToLeftId);
+        if (fromCardId > 0) {
+          return this.moveCard(fromCardId, toCardId);
+        }
+      }
+    }
+    return [false, 0, 0, 0, 0];
+  };
+
+  GameBoard.prototype.moveCardIfValid = function(fromCardId, toCardId) {
+    var cardToLeftId, moveOk, ok, toColIdx, toRowIdx, _ref;
+    if (toCardId < 0) {
+      moveOk = false;
+      if (this.playingCards.getCardInfo(fromCardId).rankIdx === this.playingCards.TwoId) {
+        _ref = this.getLocnOfCard(toCardId), ok = _ref[0], toRowIdx = _ref[1], toColIdx = _ref[2];
+        if (ok && toColIdx === 0) {
+          moveOk = true;
+        }
+      } else {
+        cardToLeftId = this.getCardToLeftInfo(toCardId);
+        if (cardToLeftId >= 0) {
+          if (fromCardId === this.playingCards.findNextCardInSameSuit(cardToLeftId)) {
+            moveOk = true;
+          }
+        }
+      }
+      if (moveOk) {
+        return this.moveCard(fromCardId, toCardId);
+      }
+    }
+    return [false, 0, 0, 0, 0];
+  };
+
+  GameBoard.prototype.moveCard = function(fromCardId, toCardId) {
+    var fromColIdx, fromRowIdx, gapId, ok, toColIdx, toRowIdx, _ref, _ref1;
+    _ref = this.getLocnOfCard(fromCardId), ok = _ref[0], fromRowIdx = _ref[1], fromColIdx = _ref[2];
+    if (ok) {
+      _ref1 = this.getLocnOfCard(toCardId), ok = _ref1[0], toRowIdx = _ref1[1], toColIdx = _ref1[2];
+      if (ok) {
+        gapId = this.board[toRowIdx][toColIdx];
+        this.board[toRowIdx][toColIdx] = this.board[fromRowIdx][fromColIdx];
+        this.board[fromRowIdx][fromColIdx] = gapId;
+        return [true, fromRowIdx, fromColIdx, toRowIdx, toColIdx];
+      }
+    }
+    return [false, 0, 0, 0, 0];
   };
 
   return GameBoard;
