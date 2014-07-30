@@ -2,15 +2,16 @@ class PlayingCards
 	cardsInDeck: 52
 	cardsInSuit: 13
 	suitNames: [ 'club', 'diamond', 'heart', 'spade' ]
-	rankNames: [ '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'Jack', 'Queen', 'King' ]
+	rankNames: [ 'Ace', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'Jack', 'Queen', 'King' ]
 	dealNextIdx: 0
 	AceId: 0
 	TwoId: 1
 	KingId: 12
+	deck: []
 
 	constructor: () ->
 		@deck = @createUnsorted()
-		@deck = @shuffle(@deck)
+		@shuffle()
 		# console.log @getCardInfo(cardIdx).cardFileNamePng for cardIdx in @deck
 
 	createUnsorted: () ->
@@ -34,15 +35,15 @@ class PlayingCards
 			return "card_empty.png"
 		return @getCardInfo(cardId).cardFileNamePng
 
-	shuffle: (deck) ->
+	shuffle: () ->
 		# From the end of the list to the beginning, pick element `i`.
-		for i in [deck.length-1..1]
+		for i in [@deck.length-1..1]
 			# Choose random element `j` to the front of `i` to swap with.
 			j = Math.floor Math.random() * (i + 1)
 			# Swap `j` with `i`, using destructured assignment
-			[deck[i], deck[j]] = [deck[j], deck[i]]
+			[@deck[i], @deck[j]] = [@deck[j], @deck[i]]
 			# Return the shuffled array.
-		return deck
+		return true
 
 	startDeal: () ->
 		@dealNextIdx = 0
@@ -58,3 +59,10 @@ class PlayingCards
 		if cardInfo.rankIdx == @KingId
 			return -1
 		return cardId + 1
+
+	empty: () ->
+		@deck = []
+
+	addCard: (cardId) ->
+		@deck.push cardId
+

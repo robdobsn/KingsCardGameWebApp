@@ -5,13 +5,13 @@ class GameBoard
 	constructor: (@playingCards) ->
 		@board = []
 
-	deal: (deck) ->
+	deal: () ->
 		@board = []
-		deck.startDeal()
+		@playingCards.startDeal()
 		for row in [0..@numRows-1]
 			boardRow = []
 			for col in [0..@numCols-1]
-				boardRow.push deck.getNextCard()
+				boardRow.push @playingCards.getNextCard()
 			@board.push boardRow
 		return true
 
@@ -24,6 +24,41 @@ class GameBoard
 					@board[rowIdx][colIdx] = gapCardId
 					gapCardId -= 1
 	
+	redeal: () ->
+		# Leave any cards at start of row which are in their correct places
+		console.log "Here1"
+		colsToRedealFrom = []
+		for rowIdx in [0..@numRows-1]
+			# Find position of first card to be redealt
+			suitIdxForRow = -1
+			for colIdx in [0..@numCols-1]
+				cardId = @board[rowIdx][colIdx]
+				cardInfo = @playingCards.getCardInfo(cardId)
+				if colIdx == 0
+					suitIdxForRow = cardInfo.suitIdx
+				if cardInfo.rankIdx-1 != colIdx or cardInfo.suitIdx != suitIdxForRow
+					colsToRedealFrom.push colIdx
+					break
+		console.log "Here2"
+		# Create deck from remaining cards 
+		deck = new PlayingCards()
+		deck.empty()
+		for rowIdx in [0..@numRows-1]
+			for colIdx in [colsToRedealFrom[rowIdx]..@numCols-1]
+				cardId = @board[rowIdx][colIdx]
+				if cardId >= 0
+					deck.addCard(cardId)
+		deck.shuffle()
+		console.log "Here3"
+		# Redeal
+		deck.startDeal()
+		for rowIdx in [0..@numRows-1]
+			@board[rowIdx][colsToRedealFrom[rowIdx]] = -rowIdx - 1
+			for colIdx in [colsToRedealFrom[rowIdx]+1..@numCols-1]
+				@board[rowIdx][colIdx] = deck.getNextCard()
+		console.log "Here4"
+		return true
+
 	getCardId: (rowIdx, colIdx) ->
 		return @board[rowIdx][colIdx]
 

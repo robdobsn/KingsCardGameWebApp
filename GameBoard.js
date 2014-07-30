@@ -11,14 +11,14 @@ GameBoard = (function() {
     this.board = [];
   }
 
-  GameBoard.prototype.deal = function(deck) {
+  GameBoard.prototype.deal = function() {
     var boardRow, col, row, _i, _j, _ref, _ref1;
     this.board = [];
-    deck.startDeal();
+    this.playingCards.startDeal();
     for (row = _i = 0, _ref = this.numRows - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; row = 0 <= _ref ? ++_i : --_i) {
       boardRow = [];
       for (col = _j = 0, _ref1 = this.numCols - 1; 0 <= _ref1 ? _j <= _ref1 : _j >= _ref1; col = 0 <= _ref1 ? ++_j : --_j) {
-        boardRow.push(deck.getNextCard());
+        boardRow.push(this.playingCards.getNextCard());
       }
       this.board.push(boardRow);
     }
@@ -46,6 +46,48 @@ GameBoard = (function() {
       }).call(this));
     }
     return _results;
+  };
+
+  GameBoard.prototype.redeal = function() {
+    var cardId, cardInfo, colIdx, colsToRedealFrom, deck, rowIdx, suitIdxForRow, _i, _j, _k, _l, _m, _n, _ref, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7;
+    console.log("Here1");
+    colsToRedealFrom = [];
+    for (rowIdx = _i = 0, _ref = this.numRows - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; rowIdx = 0 <= _ref ? ++_i : --_i) {
+      suitIdxForRow = -1;
+      for (colIdx = _j = 0, _ref1 = this.numCols - 1; 0 <= _ref1 ? _j <= _ref1 : _j >= _ref1; colIdx = 0 <= _ref1 ? ++_j : --_j) {
+        cardId = this.board[rowIdx][colIdx];
+        cardInfo = this.playingCards.getCardInfo(cardId);
+        if (colIdx === 0) {
+          suitIdxForRow = cardInfo.suitIdx;
+        }
+        if (cardInfo.rankIdx - 1 !== colIdx || cardInfo.suitIdx !== suitIdxForRow) {
+          colsToRedealFrom.push(colIdx);
+          break;
+        }
+      }
+    }
+    console.log("Here2");
+    deck = new PlayingCards();
+    deck.empty();
+    for (rowIdx = _k = 0, _ref2 = this.numRows - 1; 0 <= _ref2 ? _k <= _ref2 : _k >= _ref2; rowIdx = 0 <= _ref2 ? ++_k : --_k) {
+      for (colIdx = _l = _ref3 = colsToRedealFrom[rowIdx], _ref4 = this.numCols - 1; _ref3 <= _ref4 ? _l <= _ref4 : _l >= _ref4; colIdx = _ref3 <= _ref4 ? ++_l : --_l) {
+        cardId = this.board[rowIdx][colIdx];
+        if (cardId >= 0) {
+          deck.addCard(cardId);
+        }
+      }
+    }
+    deck.shuffle();
+    console.log("Here3");
+    deck.startDeal();
+    for (rowIdx = _m = 0, _ref5 = this.numRows - 1; 0 <= _ref5 ? _m <= _ref5 : _m >= _ref5; rowIdx = 0 <= _ref5 ? ++_m : --_m) {
+      this.board[rowIdx][colsToRedealFrom[rowIdx]] = -rowIdx - 1;
+      for (colIdx = _n = _ref6 = colsToRedealFrom[rowIdx] + 1, _ref7 = this.numCols - 1; _ref6 <= _ref7 ? _n <= _ref7 : _n >= _ref7; colIdx = _ref6 <= _ref7 ? ++_n : --_n) {
+        this.board[rowIdx][colIdx] = deck.getNextCard();
+      }
+    }
+    console.log("Here4");
+    return true;
   };
 
   GameBoard.prototype.getCardId = function(rowIdx, colIdx) {

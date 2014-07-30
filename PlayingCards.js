@@ -8,7 +8,7 @@ PlayingCards = (function() {
 
   PlayingCards.prototype.suitNames = ['club', 'diamond', 'heart', 'spade'];
 
-  PlayingCards.prototype.rankNames = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'Jack', 'Queen', 'King'];
+  PlayingCards.prototype.rankNames = ['Ace', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'Jack', 'Queen', 'King'];
 
   PlayingCards.prototype.dealNextIdx = 0;
 
@@ -18,9 +18,11 @@ PlayingCards = (function() {
 
   PlayingCards.prototype.KingId = 12;
 
+  PlayingCards.prototype.deck = [];
+
   function PlayingCards() {
     this.deck = this.createUnsorted();
-    this.deck = this.shuffle(this.deck);
+    this.shuffle();
   }
 
   PlayingCards.prototype.createUnsorted = function() {
@@ -55,13 +57,13 @@ PlayingCards = (function() {
     return this.getCardInfo(cardId).cardFileNamePng;
   };
 
-  PlayingCards.prototype.shuffle = function(deck) {
+  PlayingCards.prototype.shuffle = function() {
     var i, j, _i, _ref, _ref1;
-    for (i = _i = _ref = deck.length - 1; _ref <= 1 ? _i <= 1 : _i >= 1; i = _ref <= 1 ? ++_i : --_i) {
+    for (i = _i = _ref = this.deck.length - 1; _ref <= 1 ? _i <= 1 : _i >= 1; i = _ref <= 1 ? ++_i : --_i) {
       j = Math.floor(Math.random() * (i + 1));
-      _ref1 = [deck[j], deck[i]], deck[i] = _ref1[0], deck[j] = _ref1[1];
+      _ref1 = [this.deck[j], this.deck[i]], this.deck[i] = _ref1[0], this.deck[j] = _ref1[1];
     }
-    return deck;
+    return true;
   };
 
   PlayingCards.prototype.startDeal = function() {
@@ -83,6 +85,14 @@ PlayingCards = (function() {
       return -1;
     }
     return cardId + 1;
+  };
+
+  PlayingCards.prototype.empty = function() {
+    return this.deck = [];
+  };
+
+  PlayingCards.prototype.addCard = function(cardId) {
+    return this.deck.push(cardId);
   };
 
   return PlayingCards;

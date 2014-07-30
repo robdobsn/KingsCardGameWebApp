@@ -4,10 +4,10 @@ class KingsGame
 	constructor: () ->
 		@playingCards = new PlayingCards()
 		@gameBoard = new GameBoard(@playingCards)
-		@displayBoard = new DisplayBoard(@selCellCallback, @dragCellCallback, @selCompleteCallback, @clickCallback, @playingCards)
+		@displayBoard = new DisplayBoard(@playingCards, @dragCellCallback, @clickCallback, @nextGamePhase)
 
 	start: () ->
-		@gameBoard.deal(@playingCards)
+		@gameBoard.deal()
 		@gameBoard.removeAces()
 		@playGame()
 
@@ -25,3 +25,8 @@ class KingsGame
 		console.log "Dragged", fromId, toId
 		if @gameBoard.moveCardIfValid(fromId, toId)
 			@displayBoard.showGameState(@gameBoard)
+
+	nextGamePhase: () =>
+		console.log "NGP"
+		@gameBoard.redeal()
+		@displayBoard.showGameState(@gameBoard)

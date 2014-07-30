@@ -1,6 +1,6 @@
 class DisplayBoard
 
-	constructor: (@selCellCallback, @dragCallback, @selCompleteCallback, @clickCallback, @playingCards) ->
+	constructor: (@playingCards, @dragCallback, @clickCallback, @nextGamePhase) ->
 		@registerListeners()
 
 	showGameState: (gameBoard) ->
@@ -38,6 +38,7 @@ class DisplayBoard
 				toId = @getIdNumFromIdAttr($(event.target))
 				@dragCallback(fromId, toId)
 		$('.card').click(@onCardClick)
+		$('.game-button-next').button().click(@nextGamePhase)
 
 	getIdNumFromIdAttr: (idElem) ->
 		return parseInt(idElem.attr("id")[6..])

@@ -3,12 +3,11 @@ var DisplayBoard,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
 DisplayBoard = (function() {
-  function DisplayBoard(selCellCallback, dragCallback, selCompleteCallback, clickCallback, playingCards) {
-    this.selCellCallback = selCellCallback;
-    this.dragCallback = dragCallback;
-    this.selCompleteCallback = selCompleteCallback;
-    this.clickCallback = clickCallback;
+  function DisplayBoard(playingCards, dragCallback, clickCallback, nextGamePhase) {
     this.playingCards = playingCards;
+    this.dragCallback = dragCallback;
+    this.clickCallback = clickCallback;
+    this.nextGamePhase = nextGamePhase;
     this.onCardClick = __bind(this.onCardClick, this);
     this.onMouseup = __bind(this.onMouseup, this);
     this.onMousedown = __bind(this.onMousedown, this);
@@ -49,7 +48,8 @@ DisplayBoard = (function() {
         return _this.dragCallback(fromId, toId);
       }
     });
-    return $('.card').click(this.onCardClick);
+    $('.card').click(this.onCardClick);
+    return $('.game-button-next').button().click(this.nextGamePhase);
   };
 
   DisplayBoard.prototype.getIdNumFromIdAttr = function(idElem) {

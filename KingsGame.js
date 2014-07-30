@@ -4,15 +4,16 @@ var KingsGame,
 
 KingsGame = (function() {
   function KingsGame() {
+    this.nextGamePhase = __bind(this.nextGamePhase, this);
     this.dragCellCallback = __bind(this.dragCellCallback, this);
     this.clickCallback = __bind(this.clickCallback, this);
     this.playingCards = new PlayingCards();
     this.gameBoard = new GameBoard(this.playingCards);
-    this.displayBoard = new DisplayBoard(this.selCellCallback, this.dragCellCallback, this.selCompleteCallback, this.clickCallback, this.playingCards);
+    this.displayBoard = new DisplayBoard(this.playingCards, this.dragCellCallback, this.clickCallback, this.nextGamePhase);
   }
 
   KingsGame.prototype.start = function() {
-    this.gameBoard.deal(this.playingCards);
+    this.gameBoard.deal();
     this.gameBoard.removeAces();
     return this.playGame();
   };
@@ -35,6 +36,12 @@ KingsGame = (function() {
     if (this.gameBoard.moveCardIfValid(fromId, toId)) {
       return this.displayBoard.showGameState(this.gameBoard);
     }
+  };
+
+  KingsGame.prototype.nextGamePhase = function() {
+    console.log("NGP");
+    this.gameBoard.redeal();
+    return this.displayBoard.showGameState(this.gameBoard);
   };
 
   return KingsGame;
