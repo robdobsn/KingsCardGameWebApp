@@ -1,6 +1,6 @@
 class DisplayBoard
 
-	constructor: (@playingCards, @dragCallback, @clickCallback, @nextGamePhase) ->
+	constructor: (@playingCards, @dragCallback, @clickCallback, @nextGamePhase, @resizeHandler) ->
 		@registerListeners()
 
 	showGameState: (gameBoard) ->
@@ -38,12 +38,13 @@ class DisplayBoard
 				toId = @getIdNumFromIdAttr($(event.target))
 				@dragCallback(fromId, toId)
 		$('.card').click(@onCardClick)
-		$('.game-button-next').button().click(@nextGamePhase)
 
 	getIdNumFromIdAttr: (idElem) ->
 		return parseInt(idElem.attr("id")[6..])
 
 	registerListeners: ->
+		$('.game-button-next').button().click(@nextGamePhase)
+		$(window).resize @resizeHandler
 		return
 		document.addEventListener "mousemove", @onMousemove, (false)
 		document.addEventListener "mousedown", @onMousedown, (false)

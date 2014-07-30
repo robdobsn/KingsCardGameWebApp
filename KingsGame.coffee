@@ -4,7 +4,7 @@ class KingsGame
 	constructor: () ->
 		@playingCards = new PlayingCards()
 		@gameBoard = new GameBoard(@playingCards)
-		@displayBoard = new DisplayBoard(@playingCards, @dragCellCallback, @clickCallback, @nextGamePhase)
+		@displayBoard = new DisplayBoard(@playingCards, @dragCellCallback, @clickCallback, @nextGamePhase, @resizeHandler)
 
 	start: () ->
 		@gameBoard.deal()
@@ -29,4 +29,7 @@ class KingsGame
 	nextGamePhase: () =>
 		console.log "NGP"
 		@gameBoard.redeal()
+		@displayBoard.showGameState(@gameBoard)
+
+	resizeHandler: () =>
 		@displayBoard.showGameState(@gameBoard)
