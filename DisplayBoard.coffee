@@ -2,10 +2,11 @@ class DisplayBoard
 
 	constructor: (@playingCards, @dragCallback, @clickCallback, @resizeHandler, @basePath, @selectorForPage) ->
 		@registerListeners()
+		@USE_DRAG_AND_DROP = false
 
 	showGameState: (gameBoard) ->
 		# Calculate playing area dimensions
-		displayWidth = jQuery(@selectorForPage).width() - 50
+		displayWidth = jQuery(@selectorForPage).width() 
 		displayHeight = jQuery(@selectorForPage).height()
 		cardWidth = displayWidth / gameBoard.numCols
 		cardHeight = cardWidth * 1.545
@@ -18,27 +19,30 @@ class DisplayBoard
 				cardId = gameBoard.getCardId(rowIdx, colIdx)
 				cardFileName = @basePath + "cards/" + gameBoard.getCardFileName(rowIdx, colIdx)
 				jQuery("#row#{rowIdx}").append("<img id='cardid#{cardId}' class='card' width='#{cardWidth}px' height='#{cardHeight}px' src='#{cardFileName}'></img>")
+		# Show status
+		jQuery('.game-status-box').html("Turn #{gameBoard.turns+1}")
 		# Add hooks
-		jQuery('.card').draggable
-			cancel: "a.ui-icon"
-			revert: "invalid"
-			containment: "document"
-			helper: "clone"
-			cursor: "move"
-			distance: 20
-		jQuery('.card').droppable
-			accept: ".card"
-			activeClass: "ui-state-highlight"
-			# over: (event, ui) ->
-			# 	console.log "over", ui.draggable, @
-			drop: (event, ui) =>
-				# console.log "dropped", ui.draggable, @
-				# console.log ui.draggable.attr("id")
-				# console.log $(@).attr("id")
-				fromId = @getIdNumFromIdAttr(ui.draggable)
-				toId = @getIdNumFromIdAttr(jQuery(event.target))
-				@dragCallback(fromId, toId)
 		jQuery('.card').click(@onCardClick)
+		if @USE_DRAG_AND_DROP
+			jQuery('.card').draggable
+				cancel: "a.ui-icon"
+				revert: "invalid"
+				containment: "document"
+				helper: "clone"
+				cursor: "move"
+				distance: 20
+			jQuery('.card').droppable
+				accept: ".card"
+				activeClass: "ui-state-highlight"
+				# over: (event, ui) ->
+				# 	console.log "over", ui.draggable, @
+				drop: (event, ui) =>
+					# console.log "dropped", ui.draggable, @
+					# console.log ui.draggable.attr("id")
+					# console.log $(@).attr("id")
+					fromId = @getIdNumFromIdAttr(ui.draggable)
+					toId = @getIdNumFromIdAttr(jQuery(event.target))
+					@dragCallback(fromId, toId)
 
 	getIdNumFromIdAttr: (idElem) ->
 		return parseInt(idElem.attr("id")[6..])

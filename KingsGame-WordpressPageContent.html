@@ -32,6 +32,34 @@
     {
 
     }
+    .game-board
+    {
+      margin-top: 10px;
+      margin-bottom: 10px;
+    }
+    .game-buttons
+    {
+    }
+    .game-status
+    {
+      float:left;
+      margin-right: 20px;
+    }
+    .game-status-box
+    {
+      padding: .4em 1em;
+      color: blue;
+    }
+    #games-content div.page
+    {
+      background-color: green;
+      padding: 15px;
+    }
+    .games-access
+    {
+      margin-top: 20px;
+      margin-bottom: 20px;
+    }
   </style>
   <link rel="stylesheet" href="/rob-content/kings/libs/jquery-ui.css">
   <script type="text/javascript" src="/rob-content/kings/libs/jquery-ui.min.js"></script>
@@ -42,7 +70,10 @@
   <script type="text/javascript" src="/rob-content/kings/GameHistory.js"></script>
 
   <div class="game-board" id="gameboard"></div>
-  <div class="game-buttons">
+  <div class="game-status ui-widget ui-widget-content ui-corner-all">
+    <div class="game-status-box">Turn 1</div>
+  </div>
+    <div class="game-buttons">
     <div class="game-button-next">Next</div>
     <div class="game-button-undo">Undo</div>
     <div class="game-button-redo">Redo</div>

@@ -9,6 +9,7 @@ GameBoard = (function() {
   function GameBoard(playingCards) {
     this.playingCards = playingCards;
     this.board = [];
+    this.turns = 0;
   }
 
   GameBoard.prototype.copy = function(copyFrom) {
@@ -21,6 +22,7 @@ GameBoard = (function() {
       }
       this.board.push(boardRow);
     }
+    this.turns = copyFrom.turns;
     return true;
   };
 
@@ -102,6 +104,7 @@ GameBoard = (function() {
         }
       }
     }
+    this.turns += 1;
     return true;
   };
 

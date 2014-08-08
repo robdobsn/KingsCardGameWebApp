@@ -4,6 +4,7 @@ class GameBoard
 
 	constructor: (@playingCards) ->
 		@board = []
+		@turns = 0
 
 	copy: (copyFrom) ->
 		@board = []
@@ -12,6 +13,7 @@ class GameBoard
 			for col in [0..@numCols-1]
 				boardRow.push copyFrom.board[row][col]
 			@board.push boardRow
+		@turns = copyFrom.turns
 		return true
 
 	deal: () ->
@@ -66,6 +68,7 @@ class GameBoard
 					cardId = deck.getNextCard()
 					if cardId >= 0
 						@board[rowIdx][colIdx] = cardId
+		@turns += 1
 		return true
 
 	getCardId: (rowIdx, colIdx) ->

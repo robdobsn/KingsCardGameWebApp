@@ -15,11 +15,12 @@ DisplayBoard = (function() {
     this.onMousedown = __bind(this.onMousedown, this);
     this.onMousemove = __bind(this.onMousemove, this);
     this.registerListeners();
+    this.USE_DRAG_AND_DROP = false;
   }
 
   DisplayBoard.prototype.showGameState = function(gameBoard) {
     var cardFileName, cardHeight, cardId, cardWidth, colIdx, displayHeight, displayWidth, rowIdx, _i, _j, _ref, _ref1;
-    displayWidth = jQuery(this.selectorForPage).width() - 50;
+    displayWidth = jQuery(this.selectorForPage).width();
     displayHeight = jQuery(this.selectorForPage).height();
     cardWidth = displayWidth / gameBoard.numCols;
     cardHeight = cardWidth * 1.545;
@@ -32,27 +33,30 @@ DisplayBoard = (function() {
         jQuery("#row" + rowIdx).append("<img id='cardid" + cardId + "' class='card' width='" + cardWidth + "px' height='" + cardHeight + "px' src='" + cardFileName + "'></img>");
       }
     }
-    jQuery('.card').draggable({
-      cancel: "a.ui-icon",
-      revert: "invalid",
-      containment: "document",
-      helper: "clone",
-      cursor: "move",
-      distance: 20
-    });
-    jQuery('.card').droppable({
-      accept: ".card",
-      activeClass: "ui-state-highlight",
-      drop: (function(_this) {
-        return function(event, ui) {
-          var fromId, toId;
-          fromId = _this.getIdNumFromIdAttr(ui.draggable);
-          toId = _this.getIdNumFromIdAttr(jQuery(event.target));
-          return _this.dragCallback(fromId, toId);
-        };
-      })(this)
-    });
-    return jQuery('.card').click(this.onCardClick);
+    jQuery('.game-status-box').html("Turn " + (gameBoard.turns + 1));
+    jQuery('.card').click(this.onCardClick);
+    if (this.USE_DRAG_AND_DROP) {
+      jQuery('.card').draggable({
+        cancel: "a.ui-icon",
+        revert: "invalid",
+        containment: "document",
+        helper: "clone",
+        cursor: "move",
+        distance: 20
+      });
+      return jQuery('.card').droppable({
+        accept: ".card",
+        activeClass: "ui-state-highlight",
+        drop: (function(_this) {
+          return function(event, ui) {
+            var fromId, toId;
+            fromId = _this.getIdNumFromIdAttr(ui.draggable);
+            toId = _this.getIdNumFromIdAttr(jQuery(event.target));
+            return _this.dragCallback(fromId, toId);
+          };
+        })(this)
+      });
+    }
   };
 
   DisplayBoard.prototype.getIdNumFromIdAttr = function(idElem) {
