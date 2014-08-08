@@ -5,6 +5,15 @@ class GameBoard
 	constructor: (@playingCards) ->
 		@board = []
 
+	copy: (copyFrom) ->
+		@board = []
+		for row in [0..@numRows-1]
+			boardRow = []
+			for col in [0..@numCols-1]
+				boardRow.push copyFrom.board[row][col]
+			@board.push boardRow
+		return true
+
 	deal: () ->
 		@board = []
 		@playingCards.startDeal()
@@ -26,7 +35,6 @@ class GameBoard
 	
 	redeal: () ->
 		# Leave any cards at start of row which are in their correct places
-		console.log "Here1"
 		colsToRedealFrom = []
 		for rowIdx in [0..@numRows-1]
 			# Find position of first card to be redealt
@@ -36,10 +44,10 @@ class GameBoard
 				cardInfo = @playingCards.getCardInfo(cardId)
 				if colIdx == 0
 					suitIdxForRow = cardInfo.suitIdx
-				if cardInfo.rankIdx-1 != colIdx or cardInfo.suitIdx != suitIdxForRow
+				if cardInfo.isGap or cardInfo.rankIdx-1 != colIdx or cardInfo.suitIdx != suitIdxForRow
 					colsToRedealFrom.push colIdx
 					break
-		console.log "Here2"
+			console.log colsToRedealFrom[colsToRedealFrom.length-1]
 		# Create deck from remaining cards 
 		deck = new PlayingCards()
 		deck.empty()
@@ -49,14 +57,15 @@ class GameBoard
 				if cardId >= 0
 					deck.addCard(cardId)
 		deck.shuffle()
-		console.log "Here3"
 		# Redeal
 		deck.startDeal()
 		for rowIdx in [0..@numRows-1]
 			@board[rowIdx][colsToRedealFrom[rowIdx]] = -rowIdx - 1
-			for colIdx in [colsToRedealFrom[rowIdx]+1..@numCols-1]
-				@board[rowIdx][colIdx] = deck.getNextCard()
-		console.log "Here4"
+			if colsToRedealFrom[rowIdx]+1 < @numCols
+				for colIdx in [colsToRedealFrom[rowIdx]+1..@numCols-1]
+					cardId = deck.getNextCard()
+					if cardId >= 0
+						@board[rowIdx][colIdx] = cardId
 		return true
 
 	getCardId: (rowIdx, colIdx) ->
@@ -71,9 +80,9 @@ class GameBoard
 			for chkCardId, cardIdx in row
 				if chkCardId == cardId
 					if cardIdx == 0
-						return -1
-					return @board[rowIdx][cardIdx-1]
-		return -2
+						return [-1, rowIdx, cardIdx]
+					return [@board[rowIdx][cardIdx-1],rowIdx,cardIdx]
+		return [-2,0,0]
 
 	getLocnOfCard: (cardId) ->
 		for row, rowIdx in @board
@@ -85,13 +94,17 @@ class GameBoard
 	moveValidCardToEmptyPlace: (toCardId) ->
 		if toCardId < 0
 			# Get card at cell before clicked one
-			cardToLeftId = @getCardToLeftInfo(toCardId)
+			[cardToLeftId,clickedRow,clickedCol] = @getCardToLeftInfo(toCardId)
+			# check for click on first column
+			if cardToLeftId == -1
+				return ["select2",0,0,clickedRow,clickedCol]
+			# other space clicked
 			if cardToLeftId >= 0
 				# Don't accept cards at start of row (or failures)
 				fromCardId = @playingCards.findNextCardInSameSuit(cardToLeftId)
 				if fromCardId > 0
 					return @moveCard(fromCardId, toCardId)
-		return [ false,0,0,0,0 ]
+		return ["none",0,0,0,0]
 
 	moveCardIfValid: (fromCardId, toCardId) ->
 		if toCardId < 0
@@ -101,13 +114,13 @@ class GameBoard
 				if ok and toColIdx == 0
 					moveOk = true
 			else
-				cardToLeftId = @getCardToLeftInfo(toCardId)
+				[cardToLeftId,clickedRow,clickedCol] = @getCardToLeftInfo(toCardId)
 				if cardToLeftId >= 0
 					if fromCardId == @playingCards.findNextCardInSameSuit(cardToLeftId)
 						moveOk = true
 			if moveOk
 				return @moveCard(fromCardId, toCardId)
-		return [ false,0,0,0,0 ]
+		return ["none",0,0,0,0]
 
 	moveCard: (fromCardId, toCardId) ->
 		[ok, fromRowIdx, fromColIdx] = @getLocnOfCard(fromCardId)
@@ -117,6 +130,17 @@ class GameBoard
 				gapId = @board[toRowIdx][toColIdx]
 				@board[toRowIdx][toColIdx] = @board[fromRowIdx][fromColIdx]
 				@board[fromRowIdx][fromColIdx] = gapId
-				return [ true, fromRowIdx, fromColIdx, toRowIdx, toColIdx ]
-		return [ false,0,0,0,0 ]
+				return [ "ok", fromRowIdx, fromColIdx, toRowIdx, toColIdx ]
+		return ["none",0,0,0,0]
+
+	getCardName: (cardId) ->
+
+	debugDump: (debugStr) ->
+		console.log debugStr
+		for row in [0..@numRows-1]
+			rowStr = ""
+			for col in [0..@numCols-1]
+				cardInfo = @playingCards.getCardInfo(@getCardId(row,col))
+				rowStr += cardInfo.cardShortName + " "
+			console.log rowStr
 

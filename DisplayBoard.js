@@ -3,12 +3,13 @@ var DisplayBoard,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
 DisplayBoard = (function() {
-  function DisplayBoard(playingCards, dragCallback, clickCallback, nextGamePhase, resizeHandler) {
+  function DisplayBoard(playingCards, dragCallback, clickCallback, resizeHandler, basePath, selectorForPage) {
     this.playingCards = playingCards;
     this.dragCallback = dragCallback;
     this.clickCallback = clickCallback;
-    this.nextGamePhase = nextGamePhase;
     this.resizeHandler = resizeHandler;
+    this.basePath = basePath;
+    this.selectorForPage = selectorForPage;
     this.onCardClick = __bind(this.onCardClick, this);
     this.onMouseup = __bind(this.onMouseup, this);
     this.onMousedown = __bind(this.onMousedown, this);
@@ -18,39 +19,40 @@ DisplayBoard = (function() {
 
   DisplayBoard.prototype.showGameState = function(gameBoard) {
     var cardFileName, cardHeight, cardId, cardWidth, colIdx, displayHeight, displayWidth, rowIdx, _i, _j, _ref, _ref1;
-    displayWidth = $(window).width() - 50;
-    displayHeight = $(window).height();
+    displayWidth = jQuery(this.selectorForPage).width() - 50;
+    displayHeight = jQuery(this.selectorForPage).height();
     cardWidth = displayWidth / gameBoard.numCols;
     cardHeight = cardWidth * 1.545;
-    $('.game-board').html("");
+    jQuery('.game-board').html("");
     for (rowIdx = _i = 0, _ref = gameBoard.numRows - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; rowIdx = 0 <= _ref ? ++_i : --_i) {
-      $('.game-board').append("<div class='row' id='row" + rowIdx + "'></div>");
+      jQuery('.game-board').append("<div class='row' id='row" + rowIdx + "'></div>");
       for (colIdx = _j = 0, _ref1 = gameBoard.numCols - 1; 0 <= _ref1 ? _j <= _ref1 : _j >= _ref1; colIdx = 0 <= _ref1 ? ++_j : --_j) {
         cardId = gameBoard.getCardId(rowIdx, colIdx);
-        cardFileName = gameBoard.getCardFileName(rowIdx, colIdx);
-        $("#row" + rowIdx).append("<img id='cardid" + cardId + "' class='card' width='" + cardWidth + "px' height='" + cardHeight + "px' src='cards/" + cardFileName + "'></img>");
+        cardFileName = this.basePath + "cards/" + gameBoard.getCardFileName(rowIdx, colIdx);
+        jQuery("#row" + rowIdx).append("<img id='cardid" + cardId + "' class='card' width='" + cardWidth + "px' height='" + cardHeight + "px' src='" + cardFileName + "'></img>");
       }
     }
-    $('.card').draggable({
+    jQuery('.card').draggable({
       cancel: "a.ui-icon",
       revert: "invalid",
       containment: "document",
       helper: "clone",
-      cursor: "move"
+      cursor: "move",
+      distance: 20
     });
-    $('.card').droppable({
+    jQuery('.card').droppable({
       accept: ".card",
       activeClass: "ui-state-highlight",
       drop: (function(_this) {
         return function(event, ui) {
           var fromId, toId;
           fromId = _this.getIdNumFromIdAttr(ui.draggable);
-          toId = _this.getIdNumFromIdAttr($(event.target));
+          toId = _this.getIdNumFromIdAttr(jQuery(event.target));
           return _this.dragCallback(fromId, toId);
         };
       })(this)
     });
-    return $('.card').click(this.onCardClick);
+    return jQuery('.card').click(this.onCardClick);
   };
 
   DisplayBoard.prototype.getIdNumFromIdAttr = function(idElem) {
@@ -58,8 +60,7 @@ DisplayBoard = (function() {
   };
 
   DisplayBoard.prototype.registerListeners = function() {
-    $('.game-button-next').button().click(this.nextGamePhase);
-    $(window).resize(this.resizeHandler);
+    jQuery(window).resize(this.resizeHandler);
     return;
     document.addEventListener("mousemove", this.onMousemove, false);
     document.addEventListener("mousedown", this.onMousedown, false);
@@ -79,7 +80,23 @@ DisplayBoard = (function() {
   };
 
   DisplayBoard.prototype.onCardClick = function(event) {
-    return this.clickCallback(this.getIdNumFromIdAttr($(event.target)));
+    return this.clickCallback(this.getIdNumFromIdAttr(jQuery(event.target)));
+  };
+
+  DisplayBoard.prototype.showPick2 = function() {
+    var pickPos;
+    pickPos = jQuery(this.selectorForPage).height() + 100;
+    console.log("{top:" + (pickPos / 2) + "px}");
+    jQuery(".click-on-two").css('top', "" + (-pickPos / 2) + "px");
+    return jQuery(".click-on-two").show();
+  };
+
+  DisplayBoard.prototype.hidePick2 = function() {
+    return jQuery(".click-on-two").hide();
+  };
+
+  DisplayBoard.prototype.isPick2 = function() {
+    return jQuery(".click-on-two").is(":visible");
   };
 
   return DisplayBoard;

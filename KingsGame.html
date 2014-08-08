@@ -2,14 +2,10 @@
 <head>
   <title>Kings</title>
 
-  <script type="text/javascript" src="libs/jquery-1.11.1.min.js"></script>
-  <script type="text/javascript" src="libs/jquery-ui.min.js"></script>
   <link rel="stylesheet" href="libs/jquery-ui.css">
-  <script type="text/javascript" src="KingsGame.js"></script>
-  <script type="text/javascript" src="PlayingCards.js"></script>
-  <script type="text/javascript" src="GameBoard.js"></script>
-  <script type="text/javascript" src="DisplayBoard.js"></script>
 
+</head>
+<body onload="startup()">
   <style type="text/css">
     body 
     {
@@ -23,18 +19,47 @@
       margin: 50px auto 0 auto;
       display: block;
     }
+    .click-on-two
+    {
+      position: relative;
+      text-align: center;
+      width:100%;
+      background-color: green;
+      margin-left: auto;
+      margin-right: auto;
+      width: 50%;
+    }
+    .click-on-two div
+    {
+      vertical-align: middle;
+      height: 60px;
+      display: table-cell;
+      width: 200em;
+    }
+    .click-on-two div span
+    {
+
+    }
   </style>
   <script type="text/javascript">
     startup = function() {
-    kingsGame = new KingsGame();
+    kingsGame = new KingsGame("");
     kingsGame.start();
   };
   </script>
-</head>
-<body onload="startup()">
+  <script type="text/javascript" src="libs/jquery-1.11.1.min.js"></script>
+  <script type="text/javascript" src="libs/jquery-ui.min.js"></script>
+  <script type="text/javascript" src="KingsGame.js"></script>
+  <script type="text/javascript" src="PlayingCards.js"></script>
+  <script type="text/javascript" src="GameBoard.js"></script>
+  <script type="text/javascript" src="DisplayBoard.js"></script>
+  <script type="text/javascript" src="GameHistory.js"></script>
   <div class="game-board" id="gameboard"></div>
   <div class="game-buttons">
     <div class="game-button-next">Next</div>
+    <div class="game-button-undo">Undo</div>
+    <div class="game-button-redo">Redo</div>
   </div>
+  <div class="click-on-two"><div><span>Click on the 2 to move</span></div></div>
 </body>
 </html>

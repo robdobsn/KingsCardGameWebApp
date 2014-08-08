@@ -2,7 +2,9 @@ class PlayingCards
 	cardsInDeck: 52
 	cardsInSuit: 13
 	suitNames: [ 'club', 'diamond', 'heart', 'spade' ]
+	shortSuitNames: [ 'C', 'D', 'H', 'S' ]
 	rankNames: [ 'Ace', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'Jack', 'Queen', 'King' ]
+	shortRankNames: ['A', '2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K' ]
 	dealNextIdx: 0
 	AceId: 0
 	TwoId: 1
@@ -19,7 +21,20 @@ class PlayingCards
 		return deck
 
 	getCardInfo: (cardId) ->
+		if cardId < 0
+			cardInfo =
+				suitIdx: 0
+				suitName: "GAP"
+				rankIdx: -cardId
+				rankName: (-cardId).toString()
+				cardFileNamePng: ""
+				cardShortName: "G" + (-cardId).toString()
+				isGap: true
+
+			return cardInfo
+		if cardId > @cardsInDeck-1 then debugger
 		suitIdx = Math.floor (cardId / @cardsInSuit)
+		if suitIdx < 0 or suitIdx >= @suitNames.length then debugger
 		suitName = @suitNames[suitIdx]
 		rankIdx = cardId % @cardsInSuit
 		cardInfo =
@@ -28,6 +43,8 @@ class PlayingCards
 			rankIdx: rankIdx
 			rankName: @rankNames[rankIdx]
 			cardFileNamePng: "card_" + (rankIdx+1) + "_" + suitName + ".png"
+			cardShortName: @shortSuitNames[suitIdx] + @shortRankNames[rankIdx]
+			isGap: false
 		return cardInfo
 
 	getCardFileName: (cardId) ->
@@ -51,7 +68,7 @@ class PlayingCards
 	getNextCard: () ->
 		card = @deck[@dealNextIdx]
 		@dealNextIdx += 1
-		@dealNextIdx = @dealNextIdx % @cardsInDeck
+		@dealNextIdx = @dealNextIdx % @deck.length
 		return card
 
 	findNextCardInSameSuit: (cardId) ->

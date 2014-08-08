@@ -3,49 +3,97 @@ var KingsGame,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
 KingsGame = (function() {
-  function KingsGame() {
+  function KingsGame(basePath) {
+    this.basePath = basePath;
+    this.redoMove = __bind(this.redoMove, this);
+    this.undoMove = __bind(this.undoMove, this);
     this.resizeHandler = __bind(this.resizeHandler, this);
     this.nextGamePhase = __bind(this.nextGamePhase, this);
     this.dragCellCallback = __bind(this.dragCellCallback, this);
     this.clickCallback = __bind(this.clickCallback, this);
     this.playingCards = new PlayingCards();
     this.gameBoard = new GameBoard(this.playingCards);
-    this.displayBoard = new DisplayBoard(this.playingCards, this.dragCellCallback, this.clickCallback, this.nextGamePhase, this.resizeHandler);
+    this.displayBoard = new DisplayBoard(this.playingCards, this.dragCellCallback, this.clickCallback, this.resizeHandler, this.basePath, ".game-board");
+    this.gameHistory = new GameHistory();
   }
 
   KingsGame.prototype.start = function() {
+    var btn, fn;
+    btn = jQuery('.game-button-next');
+    fn = btn.button;
+    jQuery('.game-button-next').button().click(this.nextGamePhase);
+    jQuery('.game-button-undo').button().click(this.undoMove);
+    jQuery('.game-button-redo').button().click(this.redoMove);
     this.gameBoard.deal();
     this.gameBoard.removeAces();
+    this.gameHistory.addToHistory(this.gameBoard);
     return this.playGame();
   };
 
   KingsGame.prototype.playGame = function() {
     console.log("Playing Kings");
+    this.displayBoard.hidePick2();
     return this.displayBoard.showGameState(this.gameBoard);
   };
 
   KingsGame.prototype.clickCallback = function(clickedCardId) {
-    var fromCol, fromRow, movedOk, toCol, toRow, _ref;
-    _ref = this.gameBoard.moveValidCardToEmptyPlace(clickedCardId), movedOk = _ref[0], fromRow = _ref[1], fromCol = _ref[2], toRow = _ref[3], toCol = _ref[4];
-    if (movedOk) {
-      return this.displayBoard.showGameState(this.gameBoard);
+    var fromCol, fromRow, moveResult, toCardId, toCol, toRow, _ref, _ref1;
+    if (this.displayBoard.isPick2()) {
+      toCardId = this.gameBoard.getCardId(this.move2ToCell[0], this.move2ToCell[1]);
+      _ref = this.gameBoard.moveCardIfValid(clickedCardId, toCardId), moveResult = _ref[0], fromRow = _ref[1], fromCol = _ref[2], toRow = _ref[3], toCol = _ref[4];
+      if (moveResult === "ok") {
+        this.displayBoard.showGameState(this.gameBoard);
+        this.gameHistory.addToHistory(this.gameBoard);
+        this.displayBoard.hidePick2();
+        return;
+      }
+    }
+    _ref1 = this.gameBoard.moveValidCardToEmptyPlace(clickedCardId), moveResult = _ref1[0], fromRow = _ref1[1], fromCol = _ref1[2], toRow = _ref1[3], toCol = _ref1[4];
+    if (moveResult === "ok") {
+      this.displayBoard.showGameState(this.gameBoard);
+      this.gameHistory.addToHistory(this.gameBoard);
+      this.displayBoard.hidePick2();
+    } else if (moveResult === "select2") {
+      this.displayBoard.showPick2();
+      this.move2ToCell = [toRow, toCol];
     }
   };
 
   KingsGame.prototype.dragCellCallback = function(fromId, toId) {
+    var fromCol, fromRow, moveResult, toCol, toRow, _ref;
+    this.displayBoard.hidePick2();
     console.log("Dragged", fromId, toId);
-    if (this.gameBoard.moveCardIfValid(fromId, toId)) {
-      return this.displayBoard.showGameState(this.gameBoard);
+    _ref = this.gameBoard.moveCardIfValid(fromId, toId), moveResult = _ref[0], fromRow = _ref[1], fromCol = _ref[2], toRow = _ref[3], toCol = _ref[4];
+    if (moveResult === "ok") {
+      this.displayBoard.showGameState(this.gameBoard);
+      return this.gameHistory.addToHistory(this.gameBoard);
     }
   };
 
   KingsGame.prototype.nextGamePhase = function() {
-    console.log("NGP");
+    this.displayBoard.hidePick2();
     this.gameBoard.redeal();
-    return this.displayBoard.showGameState(this.gameBoard);
+    this.displayBoard.showGameState(this.gameBoard);
+    return this.gameHistory.addToHistory(this.gameBoard);
   };
 
   KingsGame.prototype.resizeHandler = function() {
+    return this.displayBoard.showGameState(this.gameBoard);
+  };
+
+  KingsGame.prototype.undoMove = function() {
+    var prevBoard;
+    this.displayBoard.hidePick2();
+    prevBoard = this.gameHistory.getPreviousBoard();
+    this.gameBoard.copy(prevBoard);
+    return this.displayBoard.showGameState(this.gameBoard);
+  };
+
+  KingsGame.prototype.redoMove = function() {
+    var nextBoard;
+    this.displayBoard.hidePick2();
+    nextBoard = this.gameHistory.getNextBoard();
+    this.gameBoard.copy(nextBoard);
     return this.displayBoard.showGameState(this.gameBoard);
   };
 
