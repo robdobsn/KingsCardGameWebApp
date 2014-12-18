@@ -13,6 +13,7 @@ class KingsGame
 		jQuery('.game-button-next').button().click(@nextGamePhase)
 		jQuery('.game-button-undo').button().click(@undoMove)
 		jQuery('.game-button-redo').button().click(@redoMove)
+		jQuery('.game-button-hint').button().click(@hintMove)
 		@gameBoard.deal()
 		@gameBoard.removeAces()
 		@gameHistory.addToHistory(@gameBoard)
@@ -75,3 +76,6 @@ class KingsGame
 		nextBoard = @gameHistory.getNextBoard()
 		@gameBoard.copy(nextBoard)
 		@displayBoard.showGameState(@gameBoard)
+
+	hintMove: () =>
+		console.log "Hint"

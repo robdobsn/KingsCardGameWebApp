@@ -5,6 +5,7 @@ var KingsGame,
 KingsGame = (function() {
   function KingsGame(basePath) {
     this.basePath = basePath;
+    this.hintMove = __bind(this.hintMove, this);
     this.redoMove = __bind(this.redoMove, this);
     this.undoMove = __bind(this.undoMove, this);
     this.resizeHandler = __bind(this.resizeHandler, this);
@@ -24,6 +25,7 @@ KingsGame = (function() {
     jQuery('.game-button-next').button().click(this.nextGamePhase);
     jQuery('.game-button-undo').button().click(this.undoMove);
     jQuery('.game-button-redo').button().click(this.redoMove);
+    jQuery('.game-button-hint').button().click(this.hintMove);
     this.gameBoard.deal();
     this.gameBoard.removeAces();
     this.gameHistory.addToHistory(this.gameBoard);
@@ -95,6 +97,10 @@ KingsGame = (function() {
     nextBoard = this.gameHistory.getNextBoard();
     this.gameBoard.copy(nextBoard);
     return this.displayBoard.showGameState(this.gameBoard);
+  };
+
+  KingsGame.prototype.hintMove = function() {
+    return console.log("Hint");
   };
 
   return KingsGame;
