@@ -79,3 +79,34 @@ class DisplayBoard
 	isPick2: () ->
 		return jQuery(".click-on-two").is(":visible")
 
+	addArrow: (fromPos, toPos, moveIdx) ->
+		lineColours = ["aqua", "blue", "brown", "coral", "crimson", "fuchsia", "gold", "hotpink", "magenta", "orangered", "purple", "violet", "yellow"]
+		dString = "M" + fromPos.left + "," + fromPos.top + " " + "L" + toPos.left + "," + toPos.top
+		lineColour = if moveIdx < lineColours.length then lineColours[moveIdx] else "blue"
+		newArrow = jQuery(document.createElementNS("http://www.w3.org/2000/svg", "path")).attr({
+        d: dString,
+        style: "stroke:#{lineColour}; stroke-width: 5px; fill: none; marker-end: url(#arrow-#{lineColour})"
+    });
+		jQuery('#arrowOverlay').find("g").append newArrow
+
+	clearArrows: () ->
+		jQuery('#arrowOverlay').find("g").empty()
+
+	setSVGAreaSize: () ->
+		arrowArea = [ jQuery('#gameboard').width(), jQuery('#gameboard').height() ]
+		jQuery('#arrowOverlay').width(arrowArea[0])
+		jQuery('#arrowOverlay').height(arrowArea[1])
+
+	showPossibleMoveArrows: (possMoves) ->
+		@setSVGAreaSize()
+		@clearArrows()
+		for possMove, moveIdx in possMoves
+			fromId = "#cardid" + possMove[0]
+			toId = "#cardid" + possMove[1]
+			fromOffs = jQuery(fromId).offset()
+			toOffs = jQuery(toId).offset()
+			cardSize = [ jQuery(fromId).width(), jQuery(fromId).height() ]
+			fromCentre = { left: fromOffs.left + cardSize[0]/2, top: fromOffs.top + cardSize[1]/2 }
+			toCentre = { left: toOffs.left + cardSize[0]/2, top: toOffs.top + cardSize[1]/2 }
+			@addArrow(fromCentre, toCentre, moveIdx)
+

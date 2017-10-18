@@ -6,6 +6,7 @@ class KingsGame
 		@gameBoard = new GameBoard(@playingCards)
 		@displayBoard = new DisplayBoard(@playingCards, @dragCellCallback, @clickCallback, @resizeHandler, @basePath, ".game-board")
 		@gameHistory = new GameHistory()
+		@gameSearch = new GameSearch()
 
 	start: () ->
 		btn = jQuery('.game-button-next')
@@ -79,3 +80,7 @@ class KingsGame
 
 	hintMove: () =>
 		console.log "Hint"
+		possMoves = @gameSearch.getPossibleMoves(@gameBoard)
+		@displayBoard.showPossibleMoveArrows(possMoves)
+
+

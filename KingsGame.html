@@ -57,13 +57,13 @@
       padding: .4em 1em;
       color: blue;
     }
+    .arrowsOverlay
+    {
+      position: absolute;
+      top:0px;
+      left:0px;
+    }
   </style>
-  <script type="text/javascript">
-    startup = function() {
-    kingsGame = new KingsGame("");
-    kingsGame.start();
-  };
-  </script>
   <script type="text/javascript" src="libs/jquery-1.11.1.min.js"></script>
   <script type="text/javascript" src="libs/jquery-ui.min.js"></script>
   <script type="text/javascript" src="KingsGame.js"></script>
@@ -71,6 +71,13 @@
   <script type="text/javascript" src="GameBoard.js"></script>
   <script type="text/javascript" src="DisplayBoard.js"></script>
   <script type="text/javascript" src="GameHistory.js"></script>
+  <script type="text/javascript" src="GameSearch.js"></script>
+  <script type="text/javascript">
+    startup = function() {
+    kingsGame = new KingsGame("");
+    kingsGame.start();
+  };
+  </script>
   <div class="game-board" id="gameboard"></div>
   <div class="game-status ui-widget ui-widget-content ui-corner-all">
     <div class="game-status-box">Turn 1</div>
@@ -82,5 +89,54 @@
     <div class="game-button-hint">Hint</div>
   </div>
   <div class="click-on-two"><div><span>Click on the 2 to move</span></div></div>
+  <div class="arrowsOverlay">
+  <svg id="arrowOverlay" width="300" height="100">
+  <defs>
+    <marker id="arrow-aqua" markerWidth="30" markerHeight="30" refx="2" refy="6" orient="auto">
+        <path d="M2,1 L2,10 L10,6 L2,2" style="fill:aqua;" />
+    </marker>
+    <marker id="arrow-blue" markerWidth="30" markerHeight="30" refx="2" refy="6" orient="auto">
+        <path d="M2,1 L2,10 L10,6 L2,2" style="fill:blue;" />
+    </marker>
+    <marker id="arrow-brown" markerWidth="30" markerHeight="30" refx="2" refy="6" orient="auto">
+        <path d="M2,1 L2,10 L10,6 L2,2" style="fill:brown;" />
+    </marker>
+    <marker id="arrow-coral" markerWidth="30" markerHeight="30" refx="2" refy="6" orient="auto">
+        <path d="M2,1 L2,10 L10,6 L2,2" style="fill:coral;" />
+    </marker>
+    <marker id="arrow-crimson" markerWidth="30" markerHeight="30" refx="2" refy="6" orient="auto">
+        <path d="M2,1 L2,10 L10,6 L2,2" style="fill:crimson;" />
+    </marker>
+    <marker id="arrow-fuchsia" markerWidth="30" markerHeight="30" refx="2" refy="6" orient="auto">
+        <path d="M2,1 L2,10 L10,6 L2,2" style="fill:fuchsia;" />
+    </marker>
+    <marker id="arrow-gold" markerWidth="30" markerHeight="30" refx="2" refy="6" orient="auto">
+        <path d="M2,1 L2,10 L10,6 L2,2" style="fill:gold;" />
+    </marker>
+    <marker id="arrow-hotpink" markerWidth="30" markerHeight="30" refx="2" refy="6" orient="auto">
+        <path d="M2,1 L2,10 L10,6 L2,2" style="fill:hotpink;" />
+    </marker>
+    <marker id="arrow-magenta" markerWidth="30" markerHeight="30" refx="2" refy="6" orient="auto">
+        <path d="M2,1 L2,10 L10,6 L2,2" style="fill:magenta;" />
+    </marker>
+    <marker id="arrow-orangered" markerWidth="30" markerHeight="30" refx="2" refy="6" orient="auto">
+        <path d="M2,1 L2,10 L10,6 L2,2" style="fill:orangered;" />
+    </marker>
+    <marker id="arrow-purple" markerWidth="30" markerHeight="30" refx="2" refy="6" orient="auto">
+        <path d="M2,1 L2,10 L10,6 L2,2" style="fill:purple;" />
+    </marker>
+    <marker id="arrow-violet" markerWidth="30" markerHeight="30" refx="2" refy="6" orient="auto">
+        <path d="M2,1 L2,10 L10,6 L2,2" style="fill:violet;" />
+    </marker>
+    <marker id="arrow-yellow" markerWidth="30" markerHeight="30" refx="2" refy="6" orient="auto">
+        <path d="M2,1 L2,10 L10,6 L2,2" style="fill:yellow;" />
+    </marker>
+  </defs>
+
+    <g>
+    </g>
+
+  </svg>
+  </div>
 </body>
 </html>

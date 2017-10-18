@@ -1,0 +1,23 @@
+<component name="libraryTable">
+  <library name="Generated files" type="javaScript">
+    <properties>
+      <sourceFilesUrls>
+        <item url="file://$PROJECT_DIR$/DisplayBoard.js" />
+        <item url="file://$PROJECT_DIR$/GameSearch.js" />
+        <item url="file://$PROJECT_DIR$/GameHistory.js" />
+        <item url="file://$PROJECT_DIR$/PlayingCards.js" />
+        <item url="file://$PROJECT_DIR$/KingsGame.js" />
+        <item url="file://$PROJECT_DIR$/GameBoard.js" />
+      </sourceFilesUrls>
+    </properties>
+    <CLASSES>
+      <root url="file://$PROJECT_DIR$/DisplayBoard.js" />
+      <root url="file://$PROJECT_DIR$/GameSearch.js" />
+      <root url="file://$PROJECT_DIR$/GameHistory.js" />
+      <root url="file://$PROJECT_DIR$/PlayingCards.js" />
+      <root url="file://$PROJECT_DIR$/KingsGame.js" />
+      <root url="file://$PROJECT_DIR$/GameBoard.js" />
+    </CLASSES>
+    <SOURCES />
+  </library>
+</component>

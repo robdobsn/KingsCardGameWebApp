@@ -94,6 +94,28 @@ class GameBoard
 					return [true, rowIdx, colIdx]
 		return [false, 0, 0]
 
+	getEmptySquares: () ->
+		emptySqList = []
+		for row, rowIdx in @board
+			for chkCardId, colIdx in row
+				if chkCardId < 0
+					emptySqList.push [rowIdx, colIdx]
+		return emptySqList
+
+	getValidMovesForEmptySq: (toCardId) ->
+		validMoves = []
+		# Get card at cell before empty one
+		[cardToLeftId,clickedRow,clickedCol] = @getCardToLeftInfo(toCardId)
+		# check if first column
+		if clickedCol == 0
+			for suitIdx in [0..3]
+				validMoves.push [@playingCards.getCardId(suitIdx,@playingCards.TwoId), toCardId]
+		else if cardToLeftId != -1
+			nextCard = @playingCards.findNextCardInSameSuit(cardToLeftId)
+			if nextCard != -1
+				validMoves.push [nextCard, toCardId]
+		return validMoves
+
 	moveValidCardToEmptyPlace: (toCardId) ->
 		if toCardId < 0
 			# Get card at cell before clicked one

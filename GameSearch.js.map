@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "GameSearch.js",
+  "sourceRoot": "",
+  "sources": [
+    "GameSearch.coffee"
+  ],
+  "names": [],
+  "mappings": ";AAAA,IAAA;;AAAM;;;uBAIJ,gBAAA,GAAkB,SAAC,SAAD;AAChB,QAAA;IAAA,WAAA,GAAc;AACd;AAAA,SAAA,qCAAA;;MACE,WAAA,GAAc,WAAW,CAAC,MAAZ,CAAmB,SAAS,CAAC,uBAAV,CAAkC,IAAlC,CAAnB;AADhB;IAEA,OAAO,CAAC,GAAR,CAAY,WAAZ;AACA,WAAO;EALS"
+}

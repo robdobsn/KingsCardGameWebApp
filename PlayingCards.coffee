@@ -20,6 +20,9 @@ class PlayingCards
 		deck = [0..@cardsInDeck-1]
 		return deck
 
+	getCardId: (suitIdx, rankIdx) ->
+		return suitIdx * @cardsInSuit + rankIdx
+
 	getCardInfo: (cardId) ->
 		if cardId < 0
 			cardInfo =
@@ -30,7 +33,6 @@ class PlayingCards
 				cardFileNamePng: ""
 				cardShortName: "G" + (-cardId).toString()
 				isGap: true
-
 			return cardInfo
 		if cardId > @cardsInDeck-1 then debugger
 		suitIdx = Math.floor (cardId / @cardsInSuit)
