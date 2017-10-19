@@ -13,14 +13,10 @@ GameBoard = (function() {
   }
 
   GameBoard.prototype.copy = function(copyFrom) {
-    var boardRow, col, i, j, ref, ref1, row;
+    var i, ref, row;
     this.board = [];
     for (row = i = 0, ref = this.numRows - 1; 0 <= ref ? i <= ref : i >= ref; row = 0 <= ref ? ++i : --i) {
-      boardRow = [];
-      for (col = j = 0, ref1 = this.numCols - 1; 0 <= ref1 ? j <= ref1 : j >= ref1; col = 0 <= ref1 ? ++j : --j) {
-        boardRow.push(copyFrom.board[row][col]);
-      }
-      this.board.push(boardRow);
+      this.board.push(copyFrom.board[row].slice(0));
     }
     this.turns = copyFrom.turns;
     return true;

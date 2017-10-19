@@ -20,7 +20,7 @@ class GameSearch
     @bestMoveList = []
     # Get the possible moves from start position
     possMoves = @getPossibleMoves(startBoard)
-    for possMove in possMoves
+    for possMove, possMoveIdx in possMoves
       @movesConsidered = 0
       allMovesFromHere = []
       # Create a copy of game board and play the first move

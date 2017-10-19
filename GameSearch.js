@@ -22,12 +22,12 @@ GameSearch = (function() {
   };
 
   GameSearch.prototype.getFullTreeByInitalMove = function(startBoard, allPossMovesByStartMove) {
-    var allMovesFromHere, i, len, newBoard, pastMoveList, possMove, possMoves;
+    var allMovesFromHere, i, len, newBoard, pastMoveList, possMove, possMoveIdx, possMoves;
     this.bestScore = -10000;
     this.bestMoveList = [];
     possMoves = this.getPossibleMoves(startBoard);
-    for (i = 0, len = possMoves.length; i < len; i++) {
-      possMove = possMoves[i];
+    for (possMoveIdx = i = 0, len = possMoves.length; i < len; possMoveIdx = ++i) {
+      possMove = possMoves[possMoveIdx];
       this.movesConsidered = 0;
       allMovesFromHere = [];
       newBoard = new GameBoard(startBoard.playingCards);

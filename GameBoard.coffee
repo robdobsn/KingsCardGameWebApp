@@ -9,11 +9,11 @@ class GameBoard
 	copy: (copyFrom) ->
 		@board = []
 		for row in [0..@numRows-1]
-#			@board.push = copyFrom.board[row].slice(0)
-			boardRow = []
-			for col in [0..@numCols-1]
-				boardRow.push copyFrom.board[row][col]
-			@board.push boardRow
+			@board.push copyFrom.board[row].slice(0)
+#			boardRow = []
+#			for col in [0..@numCols-1]
+#				boardRow.push copyFrom.board[row][col]
+#			@board.push boardRow
 		@turns = copyFrom.turns
 		return true
 
