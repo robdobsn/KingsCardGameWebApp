@@ -3,9 +3,9 @@ class GameSearch
   constructor: () ->
     @bestFactoredScore = -10000
     @bestMoveList = []
-    @maxRecurseDepth = 15
+    @maxRecurseDepth = 12
     @movesConsidered = 0
-    @maxMovesToConsider = 2000000
+    @maxMovesToConsider = 200000
 
   getPossibleMoves: (gameBoard) ->
 #    gameBoard.debugDump("Debug")
@@ -14,6 +14,53 @@ class GameSearch
       moveOptions = moveOptions.concat gameBoard.getValidMovesForEmptySq(mtId)
 #    console.log moveOptions
     return moveOptions
+
+  getDynamicTree: (startBoard, displayBoard) ->
+    @dynamicMoveList = []
+    @dynamicFactoredScore = -10000
+    @maxRecurseDepth = 15
+    @maxMovesToConsider = 2000000
+    # Start position will move on as routes are found
+    dynamicBoard = startBoard.clone()
+    for dynamicIncrements in [0..100]
+      console.log "Dynamic tree " + dynamicIncrements
+      @bestFactoredScore = -10000
+      @bestMoveList = []
+      # Get the possible moves from start position
+      possMoves = @getPossibleMoves(dynamicBoard)
+      for possMove, possMoveIdx in possMoves
+        @movesConsidered = 0
+        # Create a copy of game board and play the first move
+        newBoard = dynamicBoard.clone()
+        newBoard.moveCardUsingRowAndColInfo(possMove[0], possMove[1])
+        newMoveList = [possMove]
+        # Check if this move improves on the best
+        newScore = newBoard.getBoardScore()
+        if @bestFactoredScore < newScore[0]
+          @bestFactoredScore = newScore[0]
+          @bestMoveList = newMoveList.slice(0)
+        # Recurse from here
+        @treeFromHere(newBoard, newMoveList, 1)
+        console.log "Start move " + possMoveIdx + " considered " + @movesConsidered
+      # Get the first move of the best sequence
+      if @bestMoveList.length <= 0
+        break
+      bestMove = @bestMoveList[0]
+      @dynamicMoveList.push bestMove
+      @dynamicFactoredScore = @bestFactoredScore
+      # Create a copy of game board and play the best move
+      dynamicBoard.moveCardUsingRowAndColInfo(bestMove[0], bestMove[1])
+      # Reduce search depth dynamically
+      if @maxRecurseDepth > 10
+        @maxRecurseDepth--
+        @maxMovesToConsider -= 200000
+      # Preview if required
+      if displayBoard is not null
+        displayBoard.showMoveSequence(@dynamicMoveList, @dynamicFactoredScore, 0, true)
+    # These are now the best
+    @bestMoveList = @dynamicMoveList.slice(0)
+    @bestFactoredScore = @dynamicFactoredScore
+    return [@dynamicMoveList, @dynamicFactoredScore]
 
   getFullTreeByInitalMove: (startBoard) ->
     @bestFactoredScore = -10000

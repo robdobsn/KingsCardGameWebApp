@@ -12,6 +12,14 @@ GameBoard = (function() {
     this.turns = 0;
   }
 
+  GameBoard.prototype.clone = function() {
+    var newBoard;
+    newBoard = new GameBoard(this.playingCards);
+    newBoard.board = this.board.slice(0);
+    newBoard.turns = this.turns;
+    return newBoard;
+  };
+
   GameBoard.prototype.copy = function(copyFrom) {
     this.board = copyFrom.board.slice(0);
     this.turns = copyFrom.turns;

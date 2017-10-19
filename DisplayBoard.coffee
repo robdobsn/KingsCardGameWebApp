@@ -115,13 +115,6 @@ class DisplayBoard
 				for possMove in movesAtLevel
 					fromCentre = {left: possMove[0][1] * cardWidth + cardWidth/2, top: possMove[0][0] * cardHeight + cardHeight/2}
 					toCentre = {left: possMove[1][1] * cardWidth + cardWidth/2, top: possMove[1][0] * cardHeight + cardHeight/2}
-#					fromId = "#cardid" + possMove[0]
-#					toId = "#cardid" + possMove[1]
-#					fromOffs = jQuery(fromId).offset()
-#					toOffs = jQuery(toId).offset()
-#					cardSize = [ jQuery(fromId).width(), jQuery(fromId).height() ]
-#					fromCentre = { left: fromOffs.left + cardSize[0]/2, top: fromOffs.top + cardSize[1]/2 }
-#					toCentre = { left: toOffs.left + cardSize[0]/2, top: toOffs.top + cardSize[1]/2 }
 					@addArrow(fromCentre, toCentre, startMoveIdx)
 
 	showMoveSequence: (moveSequence, bestMoveInfo, fromMoveIdx) ->

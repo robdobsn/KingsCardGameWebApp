@@ -99,7 +99,7 @@ class KingsGame
 		@displayBoard.showGameState(@gameBoard)
 
 	getHint: () =>
-		bestMoves = @gameSearch.getFullTreeByInitalMove(@gameBoard)
+		bestMoves = @gameSearch.getDynamicTree(@gameBoard, @displayBoard)
 		console.log "Best score " + bestMoves[1]
 		for move in bestMoves[0]
 			console.log "From " + move[0] + " to " + move[1]

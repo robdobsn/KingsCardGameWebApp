@@ -6,6 +6,12 @@ class GameBoard
 		@board = []
 		@turns = 0
 
+	clone: () ->
+		newBoard = new GameBoard(@playingCards)
+		newBoard.board = @board.slice(0)
+		newBoard.turns = @turns
+		return newBoard
+
 	copy: (copyFrom) ->
 		@board = copyFrom.board.slice(0)
 		@turns = copyFrom.turns

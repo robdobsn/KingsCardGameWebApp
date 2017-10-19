@@ -126,7 +126,7 @@ KingsGame = (function() {
 
   KingsGame.prototype.getHint = function() {
     var bestMoves, i, len, move, ref;
-    bestMoves = this.gameSearch.getFullTreeByInitalMove(this.gameBoard);
+    bestMoves = this.gameSearch.getDynamicTree(this.gameBoard, this.displayBoard);
     console.log("Best score " + bestMoves[1]);
     ref = bestMoves[0];
     for (i = 0, len = ref.length; i < len; i++) {

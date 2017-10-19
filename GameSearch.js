@@ -5,9 +5,9 @@ GameSearch = (function() {
   function GameSearch() {
     this.bestFactoredScore = -10000;
     this.bestMoveList = [];
-    this.maxRecurseDepth = 15;
+    this.maxRecurseDepth = 12;
     this.movesConsidered = 0;
-    this.maxMovesToConsider = 2000000;
+    this.maxMovesToConsider = 200000;
   }
 
   GameSearch.prototype.getPossibleMoves = function(gameBoard) {
@@ -19,6 +19,52 @@ GameSearch = (function() {
       moveOptions = moveOptions.concat(gameBoard.getValidMovesForEmptySq(mtId));
     }
     return moveOptions;
+  };
+
+  GameSearch.prototype.getDynamicTree = function(startBoard, displayBoard) {
+    var bestMove, dynamicBoard, dynamicIncrements, i, j, len, newBoard, newMoveList, newScore, possMove, possMoveIdx, possMoves;
+    this.dynamicMoveList = [];
+    this.dynamicFactoredScore = -10000;
+    this.maxRecurseDepth = 15;
+    this.maxMovesToConsider = 2000000;
+    dynamicBoard = startBoard.clone();
+    for (dynamicIncrements = i = 0; i <= 100; dynamicIncrements = ++i) {
+      console.log("Dynamic tree " + dynamicIncrements);
+      this.bestFactoredScore = -10000;
+      this.bestMoveList = [];
+      possMoves = this.getPossibleMoves(dynamicBoard);
+      for (possMoveIdx = j = 0, len = possMoves.length; j < len; possMoveIdx = ++j) {
+        possMove = possMoves[possMoveIdx];
+        this.movesConsidered = 0;
+        newBoard = dynamicBoard.clone();
+        newBoard.moveCardUsingRowAndColInfo(possMove[0], possMove[1]);
+        newMoveList = [possMove];
+        newScore = newBoard.getBoardScore();
+        if (this.bestFactoredScore < newScore[0]) {
+          this.bestFactoredScore = newScore[0];
+          this.bestMoveList = newMoveList.slice(0);
+        }
+        this.treeFromHere(newBoard, newMoveList, 1);
+        console.log("Start move " + possMoveIdx + " considered " + this.movesConsidered);
+      }
+      if (this.bestMoveList.length <= 0) {
+        break;
+      }
+      bestMove = this.bestMoveList[0];
+      this.dynamicMoveList.push(bestMove);
+      this.dynamicFactoredScore = this.bestFactoredScore;
+      dynamicBoard.moveCardUsingRowAndColInfo(bestMove[0], bestMove[1]);
+      if (this.maxRecurseDepth > 10) {
+        this.maxRecurseDepth--;
+        this.maxMovesToConsider -= 200000;
+      }
+      if (displayBoard === !null) {
+        displayBoard.showMoveSequence(this.dynamicMoveList, this.dynamicFactoredScore, 0, true);
+      }
+    }
+    this.bestMoveList = this.dynamicMoveList.slice(0);
+    this.bestFactoredScore = this.dynamicFactoredScore;
+    return [this.dynamicMoveList, this.dynamicFactoredScore];
   };
 
   GameSearch.prototype.getFullTreeByInitalMove = function(startBoard) {
