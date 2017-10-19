@@ -1,11 +1,11 @@
 class GameSearch
 
   constructor: () ->
-    @bestScore = -10000
+    @bestFactoredScore = -10000
     @bestMoveList = []
-    @maxRecurseDepth = 10
+    @maxRecurseDepth = 15
     @movesConsidered = 0
-    @maxMovesToConsider = 100000
+    @maxMovesToConsider = 1000000
 
   getPossibleMoves: (gameBoard) ->
 #    gameBoard.debugDump("Debug")
@@ -15,26 +15,29 @@ class GameSearch
 #    console.log moveOptions
     return moveOptions
 
-  getFullTreeByInitalMove: (startBoard, allPossMovesByStartMove) ->
-    @bestScore = -10000
+  getFullTreeByInitalMove: (startBoard) ->
+    @bestFactoredScore = -10000
     @bestMoveList = []
     # Get the possible moves from start position
     possMoves = @getPossibleMoves(startBoard)
     for possMove, possMoveIdx in possMoves
       @movesConsidered = 0
-      allMovesFromHere = []
       # Create a copy of game board and play the first move
       newBoard = new GameBoard(startBoard.playingCards)
       newBoard.copy(startBoard)
       newBoard.moveCardUsingRowAndColInfo(possMove[0], possMove[1])
-      pastMoveList = [possMove]
-      allMovesFromHere.push [possMove]
-      @treeFromHere(newBoard, pastMoveList, 1, allMovesFromHere)
-      allPossMovesByStartMove.push allMovesFromHere
+      newMoveList = [possMove]
+      # Check if this move improves on the best
+      newScore = newBoard.getBoardScore()
+      if @bestFactoredScore < newScore[0]
+        @bestFactoredScore = newScore[0]
+        @bestMoveList = newMoveList.slice(0)
+      # Recurse from here
+      @treeFromHere(newBoard, newMoveList, 1)
       console.log "Start move " + possMoveIdx + " considered " + @movesConsidered
-    return [@bestMoveList, @bestScore]
+    return [@bestMoveList, @bestFactoredScore]
 
-  treeFromHere: (startBoard, pastMoveList, recurseDepth, allPossMoves) ->
+  treeFromHere: (startBoard, pastMoveList, recurseDepth) ->
     # Only recurse as far as asked to
     if recurseDepth >= @maxRecurseDepth
       return
@@ -43,10 +46,6 @@ class GameSearch
     @movesConsidered += possMoves.length
     if @movesConsidered > @maxMovesToConsider
       return
-    # Add to the list of all possible moves
-    if allPossMoves.length <= recurseDepth
-      allPossMoves.push []
-    allPossMoves[recurseDepth] = allPossMoves[recurseDepth].concat possMoves
     # Go through each possible move
     for possMove in possMoves
       # Create a copy of game board and play the move
@@ -58,9 +57,12 @@ class GameSearch
       newMoveList.push possMove
       # Check if this move improves on the best
       newScore = newBoard.getBoardScore()
-      if @bestScore < newScore[0]
-        @bestScore = newScore[0]
+      if @bestFactoredScore < newScore[0]
+        @bestFactoredScore = newScore[0]
         @bestMoveList = newMoveList.slice(0)
       # Recursively search the tree
-      @treeFromHere(newBoard, newMoveList, recurseDepth+1, allPossMoves)
-    return allPossMoves
+      @treeFromHere(newBoard, newMoveList, recurseDepth+1)
+    return
+
+  getBestMoves: () ->
+    return [@bestMoveList, @bestFactoredScore]

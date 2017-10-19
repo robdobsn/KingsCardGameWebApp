@@ -24,8 +24,7 @@ class DisplayBoard
 				cardFileName = @basePath + "cards/" + gameBoard.getCardFileName(rowIdx, colIdx)
 				jQuery("#row#{rowIdx}").append("<img id='cardid#{cardId}' class='card' width='#{cardWidth}px' height='#{cardHeight}px' src='#{cardFileName}'></img>")
 		# Show status
-		jQuery('.game-status-box').html("Turn #{gameBoard.turns+1} Score #{gameBoard.getBoardScore()[0]}")
-		jQuery('.hint-info-box').hide()
+		jQuery('.game-status-box').html("Turn #{gameBoard.turns+1} Score #{gameBoard.getBoardScore()[1]}")
 #		console.log "Score " + gameBoard.getBoardScore()
 		# Add hooks
 		jQuery('.card').click(@onCardClick)
@@ -98,6 +97,7 @@ class DisplayBoard
 
 	clearArrows: () ->
 		jQuery('#arrowOverlay').find("g").empty()
+		jQuery('.hint-info').css('visibility', 'hidden')
 
 	getSVGAreaSize: () ->
 		arrowArea = [ jQuery('#gameboard').width(), jQuery('#gameboard').height() ]
@@ -124,17 +124,16 @@ class DisplayBoard
 #					toCentre = { left: toOffs.left + cardSize[0]/2, top: toOffs.top + cardSize[1]/2 }
 					@addArrow(fromCentre, toCentre, startMoveIdx)
 
-	showMoveSequence: (moveSequence, bestMoveInfo) ->
+	showMoveSequence: (moveSequence, bestMoveInfo, fromMoveIdx) ->
 		arrowArea = @getSVGAreaSize()
 		cardWidth = arrowArea[0]/13
 		cardHeight = arrowArea[1]/4
 		@clearArrows()
 		for possMove, moveIdx in moveSequence
+			if moveIdx < fromMoveIdx
+				continue
 			fromCentre = {left: possMove[0][1] * cardWidth + cardWidth/2, top: possMove[0][0] * cardHeight + cardHeight/2}
 			toCentre = {left: possMove[1][1] * cardWidth + cardWidth/2, top: possMove[1][0] * cardHeight + cardHeight/2}
 			@addArrow(fromCentre, toCentre, moveIdx)
-		jQuery('.hint-info-box').html("Best score #{bestMoveInfo}")
-		jQuery('.hint-info-box').show()
-
-
-
+		jQuery('.hint-info-box').html("Best factored score #{bestMoveInfo}")
+		jQuery('.hint-info').css('visibility', 'visible')

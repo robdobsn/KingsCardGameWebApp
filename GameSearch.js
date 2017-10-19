@@ -3,11 +3,11 @@ var GameSearch;
 
 GameSearch = (function() {
   function GameSearch() {
-    this.bestScore = -10000;
+    this.bestFactoredScore = -10000;
     this.bestMoveList = [];
-    this.maxRecurseDepth = 10;
+    this.maxRecurseDepth = 15;
     this.movesConsidered = 0;
-    this.maxMovesToConsider = 100000;
+    this.maxMovesToConsider = 1000000;
   }
 
   GameSearch.prototype.getPossibleMoves = function(gameBoard) {
@@ -21,28 +21,30 @@ GameSearch = (function() {
     return moveOptions;
   };
 
-  GameSearch.prototype.getFullTreeByInitalMove = function(startBoard, allPossMovesByStartMove) {
-    var allMovesFromHere, i, len, newBoard, pastMoveList, possMove, possMoveIdx, possMoves;
-    this.bestScore = -10000;
+  GameSearch.prototype.getFullTreeByInitalMove = function(startBoard) {
+    var i, len, newBoard, newMoveList, newScore, possMove, possMoveIdx, possMoves;
+    this.bestFactoredScore = -10000;
     this.bestMoveList = [];
     possMoves = this.getPossibleMoves(startBoard);
     for (possMoveIdx = i = 0, len = possMoves.length; i < len; possMoveIdx = ++i) {
       possMove = possMoves[possMoveIdx];
       this.movesConsidered = 0;
-      allMovesFromHere = [];
       newBoard = new GameBoard(startBoard.playingCards);
       newBoard.copy(startBoard);
       newBoard.moveCardUsingRowAndColInfo(possMove[0], possMove[1]);
-      pastMoveList = [possMove];
-      allMovesFromHere.push([possMove]);
-      this.treeFromHere(newBoard, pastMoveList, 1, allMovesFromHere);
-      allPossMovesByStartMove.push(allMovesFromHere);
+      newMoveList = [possMove];
+      newScore = newBoard.getBoardScore();
+      if (this.bestFactoredScore < newScore[0]) {
+        this.bestFactoredScore = newScore[0];
+        this.bestMoveList = newMoveList.slice(0);
+      }
+      this.treeFromHere(newBoard, newMoveList, 1);
       console.log("Start move " + possMoveIdx + " considered " + this.movesConsidered);
     }
-    return [this.bestMoveList, this.bestScore];
+    return [this.bestMoveList, this.bestFactoredScore];
   };
 
-  GameSearch.prototype.treeFromHere = function(startBoard, pastMoveList, recurseDepth, allPossMoves) {
+  GameSearch.prototype.treeFromHere = function(startBoard, pastMoveList, recurseDepth) {
     var i, len, newBoard, newMoveList, newScore, possMove, possMoves;
     if (recurseDepth >= this.maxRecurseDepth) {
       return;
@@ -52,10 +54,6 @@ GameSearch = (function() {
     if (this.movesConsidered > this.maxMovesToConsider) {
       return;
     }
-    if (allPossMoves.length <= recurseDepth) {
-      allPossMoves.push([]);
-    }
-    allPossMoves[recurseDepth] = allPossMoves[recurseDepth].concat(possMoves);
     for (i = 0, len = possMoves.length; i < len; i++) {
       possMove = possMoves[i];
       newBoard = new GameBoard(startBoard.playingCards);
@@ -64,13 +62,16 @@ GameSearch = (function() {
       newMoveList = pastMoveList.slice(0);
       newMoveList.push(possMove);
       newScore = newBoard.getBoardScore();
-      if (this.bestScore < newScore[0]) {
-        this.bestScore = newScore[0];
+      if (this.bestFactoredScore < newScore[0]) {
+        this.bestFactoredScore = newScore[0];
         this.bestMoveList = newMoveList.slice(0);
       }
-      this.treeFromHere(newBoard, newMoveList, recurseDepth + 1, allPossMoves);
+      this.treeFromHere(newBoard, newMoveList, recurseDepth + 1);
     }
-    return allPossMoves;
+  };
+
+  GameSearch.prototype.getBestMoves = function() {
+    return [this.bestMoveList, this.bestFactoredScore];
   };
 
   return GameSearch;

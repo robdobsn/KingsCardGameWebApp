@@ -202,16 +202,22 @@ class GameBoard
 					else
 						break
 		kingSpaces = 0
+		kingLastColumns = 0
 		for row in [0..@numRows-1]
 			lastCardWasKing = false
 			for col in [0..@numCols-1]
 				cardId = @getCardId(row,col)
 				if @playingCards.getCardRank(cardId) == @playingCards.KingId
-					lastCardWasKing = true
+					if col == @numCols-1
+						kingLastColumns++
+					else
+						lastCardWasKing = true
 				else
 					if cardId < 0 and lastCardWasKing
 						kingSpaces++
 					lastCardWasKing = false
-		return [rawScore-kingSpaces*3, rawScore, kingSpaces]
+		# Compute factored score
+		factoredScore = rawScore - kingSpaces + kingLastColumns
+		return [factoredScore, rawScore]
 
 

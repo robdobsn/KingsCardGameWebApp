@@ -39,8 +39,7 @@ DisplayBoard = (function() {
         jQuery("#row" + rowIdx).append("<img id='cardid" + cardId + "' class='card' width='" + cardWidth + "px' height='" + cardHeight + "px' src='" + cardFileName + "'></img>");
       }
     }
-    jQuery('.game-status-box').html("Turn " + (gameBoard.turns + 1) + " Score " + (gameBoard.getBoardScore()[0]));
-    jQuery('.hint-info-box').hide();
+    jQuery('.game-status-box').html("Turn " + (gameBoard.turns + 1) + " Score " + (gameBoard.getBoardScore()[1]));
     jQuery('.card').click(this.onCardClick);
     if (this.USE_DRAG_AND_DROP) {
       jQuery('.card').draggable({
@@ -122,7 +121,8 @@ DisplayBoard = (function() {
   };
 
   DisplayBoard.prototype.clearArrows = function() {
-    return jQuery('#arrowOverlay').find("g").empty();
+    jQuery('#arrowOverlay').find("g").empty();
+    return jQuery('.hint-info').css('visibility', 'hidden');
   };
 
   DisplayBoard.prototype.getSVGAreaSize = function() {
@@ -171,7 +171,7 @@ DisplayBoard = (function() {
     return results;
   };
 
-  DisplayBoard.prototype.showMoveSequence = function(moveSequence, bestMoveInfo) {
+  DisplayBoard.prototype.showMoveSequence = function(moveSequence, bestMoveInfo, fromMoveIdx) {
     var arrowArea, cardHeight, cardWidth, fromCentre, j, len, moveIdx, possMove, toCentre;
     arrowArea = this.getSVGAreaSize();
     cardWidth = arrowArea[0] / 13;
@@ -179,6 +179,9 @@ DisplayBoard = (function() {
     this.clearArrows();
     for (moveIdx = j = 0, len = moveSequence.length; j < len; moveIdx = ++j) {
       possMove = moveSequence[moveIdx];
+      if (moveIdx < fromMoveIdx) {
+        continue;
+      }
       fromCentre = {
         left: possMove[0][1] * cardWidth + cardWidth / 2,
         top: possMove[0][0] * cardHeight + cardHeight / 2
@@ -189,8 +192,8 @@ DisplayBoard = (function() {
       };
       this.addArrow(fromCentre, toCentre, moveIdx);
     }
-    jQuery('.hint-info-box').html("Best score " + bestMoveInfo);
-    return jQuery('.hint-info-box').show();
+    jQuery('.hint-info-box').html("Best factored score " + bestMoveInfo);
+    return jQuery('.hint-info').css('visibility', 'visible');
   };
 
   return DisplayBoard;

@@ -5,7 +5,9 @@ var KingsGame,
 KingsGame = (function() {
   function KingsGame(basePath) {
     this.basePath = basePath;
-    this.hintMove = bind(this.hintMove, this);
+    this.exitHintMode = bind(this.exitHintMode, this);
+    this.playHint = bind(this.playHint, this);
+    this.getHint = bind(this.getHint, this);
     this.redoMove = bind(this.redoMove, this);
     this.undoMove = bind(this.undoMove, this);
     this.resizeHandler = bind(this.resizeHandler, this);
@@ -17,16 +19,20 @@ KingsGame = (function() {
     this.displayBoard = new DisplayBoard(this.playingCards, this.dragCellCallback, this.clickCallback, this.resizeHandler, this.basePath, ".game-board");
     this.gameHistory = new GameHistory();
     this.gameSearch = new GameSearch();
+    this.exitHintMode();
   }
 
   KingsGame.prototype.start = function() {
     var btn, fn;
+    this.exitHintMode();
     btn = jQuery('.game-button-next');
     fn = btn.button;
     jQuery('.game-button-next').button().click(this.nextGamePhase);
     jQuery('.game-button-undo').button().click(this.undoMove);
     jQuery('.game-button-redo').button().click(this.redoMove);
-    jQuery('.game-button-hint').button().click(this.hintMove);
+    jQuery('.game-button-hint').button().click(this.getHint);
+    jQuery('.game-button-play-hint').button().click(this.playHint);
+    jQuery('.game-button-play-hint').css('visibility', 'hidden');
     this.gameBoard.deal();
     this.gameBoard.removeAces();
     this.gameHistory.addToHistory(this.gameBoard);
@@ -35,12 +41,14 @@ KingsGame = (function() {
 
   KingsGame.prototype.playGame = function() {
     console.log("Playing Kings");
+    this.exitHintMode();
     this.displayBoard.hidePick2();
     return this.displayBoard.showGameState(this.gameBoard);
   };
 
   KingsGame.prototype.clickCallback = function(clickedCardId) {
     var fromCol, fromRow, moveResult, ref, ref1, toCardId, toCol, toRow;
+    this.exitHintMode();
     if (this.displayBoard.isPick2()) {
       toCardId = this.gameBoard.getCardId(this.move2ToCell[0], this.move2ToCell[1]);
       ref = this.gameBoard.moveCardIfValid(clickedCardId, toCardId), moveResult = ref[0], fromRow = ref[1], fromCol = ref[2], toRow = ref[3], toCol = ref[4];
@@ -64,6 +72,7 @@ KingsGame = (function() {
 
   KingsGame.prototype.dragCellCallback = function(fromId, toId) {
     var fromCol, fromRow, moveResult, ref, toCol, toRow;
+    this.exitHintMode();
     this.displayBoard.hidePick2();
     console.log("Dragged", fromId, toId);
     ref = this.gameBoard.moveCardIfValid(fromId, toId), moveResult = ref[0], fromRow = ref[1], fromCol = ref[2], toRow = ref[3], toCol = ref[4];
@@ -74,43 +83,88 @@ KingsGame = (function() {
   };
 
   KingsGame.prototype.nextGamePhase = function() {
+    this.exitHintMode();
     this.displayBoard.hidePick2();
     this.gameBoard.redeal();
     this.displayBoard.showGameState(this.gameBoard);
-    return this.gameHistory.addToHistory(this.gameBoard);
+    this.gameHistory.addToHistory(this.gameBoard);
+    return this.displayBoard.clearArrows();
   };
 
   KingsGame.prototype.resizeHandler = function() {
-    return this.displayBoard.showGameState(this.gameBoard);
+    var bestMoves;
+    this.displayBoard.showGameState(this.gameBoard);
+    if (this.hintMoveIdx >= 0) {
+      bestMoves = this.gameSearch.getBestMoves();
+      return this.displayBoard.showMoveSequence(bestMoves[0], bestMoves[1], this.hintMoveIdx);
+    }
   };
 
   KingsGame.prototype.undoMove = function() {
-    var prevBoard;
+    var bestMoves, prevBoard;
     this.displayBoard.hidePick2();
     prevBoard = this.gameHistory.getPreviousBoard();
     this.gameBoard.copy(prevBoard);
-    return this.displayBoard.showGameState(this.gameBoard);
+    this.displayBoard.showGameState(this.gameBoard);
+    if (this.hintMoveIdx > 0) {
+      this.hintMoveIdx--;
+      bestMoves = this.gameSearch.getBestMoves();
+      return this.displayBoard.showMoveSequence(bestMoves[0], bestMoves[1], this.hintMoveIdx);
+    } else {
+      return this.exitHintMode();
+    }
   };
 
   KingsGame.prototype.redoMove = function() {
     var nextBoard;
+    this.exitHintMode();
     this.displayBoard.hidePick2();
     nextBoard = this.gameHistory.getNextBoard();
     this.gameBoard.copy(nextBoard);
     return this.displayBoard.showGameState(this.gameBoard);
   };
 
-  KingsGame.prototype.hintMove = function() {
-    var allPossibleMovesByStartMove, bestMoves, i, len, move, ref;
-    allPossibleMovesByStartMove = [];
-    bestMoves = this.gameSearch.getFullTreeByInitalMove(this.gameBoard, allPossibleMovesByStartMove);
+  KingsGame.prototype.getHint = function() {
+    var bestMoves, i, len, move, ref;
+    bestMoves = this.gameSearch.getFullTreeByInitalMove(this.gameBoard);
     console.log("Best score " + bestMoves[1]);
     ref = bestMoves[0];
     for (i = 0, len = ref.length; i < len; i++) {
       move = ref[i];
       console.log("From " + move[0] + " to " + move[1]);
     }
-    return this.displayBoard.showMoveSequence(bestMoves[0], bestMoves[1]);
+    if (bestMoves[0].length > 0) {
+      this.hintMoveIdx = 0;
+      jQuery('.game-button-play-hint').css('visibility', 'visible');
+      return this.displayBoard.showMoveSequence(bestMoves[0], bestMoves[1], this.hintMoveIdx);
+    }
+  };
+
+  KingsGame.prototype.playHint = function() {
+    var bestMoves, fromCol, fromRow, moveResult, moveToPlay, ref, toCol, toRow;
+    if (this.hintMoveIdx < 0) {
+      return;
+    }
+    bestMoves = this.gameSearch.getBestMoves();
+    moveToPlay = bestMoves[0][this.hintMoveIdx];
+    ref = this.gameBoard.moveCardUsingRowAndColInfo(moveToPlay[0], moveToPlay[1]), moveResult = ref[0], fromRow = ref[1], fromCol = ref[2], toRow = ref[3], toCol = ref[4];
+    if (moveResult === "ok") {
+      this.displayBoard.showGameState(this.gameBoard);
+      this.gameHistory.addToHistory(this.gameBoard);
+      this.displayBoard.hidePick2();
+    }
+    this.hintMoveIdx++;
+    if (this.hintMoveIdx >= bestMoves[0].length) {
+      this.exitHintMode();
+      return;
+    }
+    return this.displayBoard.showMoveSequence(bestMoves[0], bestMoves[1], this.hintMoveIdx);
+  };
+
+  KingsGame.prototype.exitHintMode = function() {
+    this.hintMoveIdx = -1;
+    this.displayBoard.clearArrows();
+    return jQuery('.game-button-play-hint').css('visibility', 'hidden');
   };
 
   return KingsGame;

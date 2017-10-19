@@ -269,7 +269,7 @@ GameBoard = (function() {
   };
 
   GameBoard.prototype.getBoardScore = function() {
-    var cardId, col, i, j, k, kingSpaces, l, lastCardWasKing, rawScore, ref, ref1, ref2, ref3, row, rowSuit;
+    var cardId, col, factoredScore, i, j, k, kingLastColumns, kingSpaces, l, lastCardWasKing, rawScore, ref, ref1, ref2, ref3, row, rowSuit;
     rawScore = 0;
     for (row = i = 0, ref = this.numRows - 1; 0 <= ref ? i <= ref : i >= ref; row = 0 <= ref ? ++i : --i) {
       rowSuit = -1;
@@ -292,12 +292,17 @@ GameBoard = (function() {
       }
     }
     kingSpaces = 0;
+    kingLastColumns = 0;
     for (row = k = 0, ref2 = this.numRows - 1; 0 <= ref2 ? k <= ref2 : k >= ref2; row = 0 <= ref2 ? ++k : --k) {
       lastCardWasKing = false;
       for (col = l = 0, ref3 = this.numCols - 1; 0 <= ref3 ? l <= ref3 : l >= ref3; col = 0 <= ref3 ? ++l : --l) {
         cardId = this.getCardId(row, col);
         if (this.playingCards.getCardRank(cardId) === this.playingCards.KingId) {
-          lastCardWasKing = true;
+          if (col === this.numCols - 1) {
+            kingLastColumns++;
+          } else {
+            lastCardWasKing = true;
+          }
         } else {
           if (cardId < 0 && lastCardWasKing) {
             kingSpaces++;
@@ -306,7 +311,8 @@ GameBoard = (function() {
         }
       }
     }
-    return [rawScore - kingSpaces * 3, rawScore, kingSpaces];
+    factoredScore = rawScore - kingSpaces + kingLastColumns;
+    return [factoredScore, rawScore];
   };
 
   return GameBoard;
