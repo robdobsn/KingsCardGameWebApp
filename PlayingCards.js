@@ -123,6 +123,20 @@ PlayingCards = (function() {
     return this.deck.push(cardId);
   };
 
+  PlayingCards.prototype.getCardRank = function(cardId) {
+    if (cardId < 0) {
+      return -1;
+    }
+    return cardId % this.cardsInSuit;
+  };
+
+  PlayingCards.prototype.getCardSuit = function(cardId) {
+    if (cardId < 0) {
+      return -1;
+    }
+    return Math.floor(cardId / this.cardsInSuit);
+  };
+
   return PlayingCards;
 
 })();

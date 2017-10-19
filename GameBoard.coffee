@@ -9,6 +9,7 @@ class GameBoard
 	copy: (copyFrom) ->
 		@board = []
 		for row in [0..@numRows-1]
+#			@board.push = copyFrom.board[row].slice(0)
 			boardRow = []
 			for col in [0..@numCols-1]
 				boardRow.push copyFrom.board[row][col]
@@ -83,9 +84,9 @@ class GameBoard
 			for chkCardId, cardIdx in row
 				if chkCardId == cardId
 					if cardIdx == 0
-						return [-1, rowIdx, cardIdx]
-					return [@board[rowIdx][cardIdx-1],rowIdx,cardIdx]
-		return [-2,0,0]
+						return [-1, rowIdx, cardIdx,0,0]
+					return [@board[rowIdx][cardIdx-1],rowIdx,cardIdx,rowIdx,cardIdx-1]
+		return [-2,0,0,0,0]
 
 	getLocnOfCard: (cardId) ->
 		for row, rowIdx in @board
@@ -105,21 +106,29 @@ class GameBoard
 	getValidMovesForEmptySq: (toCardId) ->
 		validMoves = []
 		# Get card at cell before empty one
-		[cardToLeftId,clickedRow,clickedCol] = @getCardToLeftInfo(toCardId)
+		[cardToLeftId,spaceRow,spaceCol,cardRow,cardCol] = @getCardToLeftInfo(toCardId)
+#		console.log "MovesValid " + toCardId + ", id " + cardToLeftId + ", row " + cardRow + ", col " + cardCol + " card " + @playingCards.getCardInfo(@getCardId(cardRow,cardCol)).cardShortName
 		# check if first column
-		if clickedCol == 0
+		if cardToLeftId == -1 and spaceCol == 0
 			for suitIdx in [0..3]
-				validMoves.push [@playingCards.getCardId(suitIdx,@playingCards.TwoId), toCardId]
-		else if cardToLeftId != -1
+				cardToMove = @playingCards.getCardId(suitIdx,@playingCards.TwoId)
+				if cardToMove >= 0
+					cardLocn = @getLocnOfCard(cardToMove)
+					if cardLocn[2] != 0  # the 2 cannot be on the first column
+						validMoves.push [[cardLocn[1], cardLocn[2]],[spaceRow,spaceCol]]
+		#				validMoves.push [@playingCards.getCardId(suitIdx,@playingCards.TwoId), toCardId]
+		else if cardToLeftId >= 0
 			nextCard = @playingCards.findNextCardInSameSuit(cardToLeftId)
-			if nextCard != -1
-				validMoves.push [nextCard, toCardId]
+			cardLocn = @getLocnOfCard(nextCard)
+			if nextCard >= 0
+				validMoves.push [[cardLocn[1], cardLocn[2]],[spaceRow,spaceCol]]
+#				validMoves.push [nextCard, toCardId]
 		return validMoves
 
 	moveValidCardToEmptyPlace: (toCardId) ->
 		if toCardId < 0
 			# Get card at cell before clicked one
-			[cardToLeftId,clickedRow,clickedCol] = @getCardToLeftInfo(toCardId)
+			[cardToLeftId,clickedRow,clickedCol,cardRow,cardCol] = @getCardToLeftInfo(toCardId)
 			# check for click on first column
 			if cardToLeftId == -1
 				return ["select2",0,0,clickedRow,clickedCol]
@@ -139,7 +148,7 @@ class GameBoard
 				if ok and toColIdx == 0
 					moveOk = true
 			else
-				[cardToLeftId,clickedRow,clickedCol] = @getCardToLeftInfo(toCardId)
+				[cardToLeftId,clickedRow,clickedCol,cardRow,cardCol] = @getCardToLeftInfo(toCardId)
 				if cardToLeftId >= 0
 					if fromCardId == @playingCards.findNextCardInSameSuit(cardToLeftId)
 						moveOk = true
@@ -158,6 +167,12 @@ class GameBoard
 				return [ "ok", fromRowIdx, fromColIdx, toRowIdx, toColIdx ]
 		return ["none",0,0,0,0]
 
+	moveCardUsingRowAndColInfo: (fromRowCol, toRowCol) ->
+		gapId = @board[toRowCol[0]][toRowCol[1]]
+		@board[toRowCol[0]][toRowCol[1]] = @board[fromRowCol[0]][fromRowCol[1]]
+		@board[fromRowCol[0]][fromRowCol[1]] = gapId
+		return [ "ok", fromRowCol[0], fromRowCol[1], toRowCol[0], toRowCol[1] ]
+
 	getCardName: (cardId) ->
 
 	debugDump: (debugStr) ->
@@ -168,4 +183,35 @@ class GameBoard
 				cardInfo = @playingCards.getCardInfo(@getCardId(row,col))
 				rowStr += cardInfo.cardShortName + " "
 			console.log rowStr
+
+	getBoardScore: () ->
+		rawScore = 0
+		for row in [0..@numRows-1]
+			rowSuit = -1
+			for col in [0..@numCols-1]
+				cardId = @getCardId(row,col)
+				if col == 0
+					if @playingCards.getCardRank(cardId) == @playingCards.TwoId
+						rowSuit = @playingCards.getCardSuit(cardId)
+						rawScore++
+					else
+						break
+				else
+					if @playingCards.getCardRank(cardId) == col+1 and @playingCards.getCardSuit(cardId) == rowSuit
+						rawScore++
+					else
+						break
+		kingSpaces = 0
+		for row in [0..@numRows-1]
+			lastCardWasKing = false
+			for col in [0..@numCols-1]
+				cardId = @getCardId(row,col)
+				if @playingCards.getCardRank(cardId) == @playingCards.KingId
+					lastCardWasKing = true
+				else
+					if cardId < 0 and lastCardWasKing
+						kingSpaces++
+					lastCardWasKing = false
+		return [rawScore-kingSpaces*3, rawScore, kingSpaces]
+
 

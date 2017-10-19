@@ -101,10 +101,16 @@ KingsGame = (function() {
   };
 
   KingsGame.prototype.hintMove = function() {
-    var possMoves;
-    console.log("Hint");
-    possMoves = this.gameSearch.getPossibleMoves(this.gameBoard);
-    return this.displayBoard.showPossibleMoveArrows(possMoves);
+    var allPossibleMovesByStartMove, bestMoves, i, len, move, ref;
+    allPossibleMovesByStartMove = [];
+    bestMoves = this.gameSearch.getFullTreeByInitalMove(this.gameBoard, allPossibleMovesByStartMove);
+    console.log("Best score " + bestMoves[1]);
+    ref = bestMoves[0];
+    for (i = 0, len = ref.length; i < len; i++) {
+      move = ref[i];
+      console.log("From " + move[0] + " to " + move[1]);
+    }
+    return this.displayBoard.showMoveSequence(bestMoves[0], bestMoves[1]);
   };
 
   return KingsGame;

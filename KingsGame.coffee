@@ -79,8 +79,9 @@ class KingsGame
 		@displayBoard.showGameState(@gameBoard)
 
 	hintMove: () =>
-		console.log "Hint"
-		possMoves = @gameSearch.getPossibleMoves(@gameBoard)
-		@displayBoard.showPossibleMoveArrows(possMoves)
-
-
+		allPossibleMovesByStartMove = []
+		bestMoves = @gameSearch.getFullTreeByInitalMove(@gameBoard, allPossibleMovesByStartMove)
+		console.log "Best score " + bestMoves[1]
+		for move in bestMoves[0]
+			console.log "From " + move[0] + " to " + move[1]
+		@displayBoard.showMoveSequence(bestMoves[0], bestMoves[1])

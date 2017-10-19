@@ -4,6 +4,7 @@ var DisplayBoard,
 
 DisplayBoard = (function() {
   function DisplayBoard(playingCards, dragCallback, clickCallback, resizeHandler, basePath, selectorForPage) {
+    var i, j, numColrs, ref;
     this.playingCards = playingCards;
     this.dragCallback = dragCallback;
     this.clickCallback = clickCallback;
@@ -16,24 +17,30 @@ DisplayBoard = (function() {
     this.onMousemove = bind(this.onMousemove, this);
     this.registerListeners();
     this.USE_DRAG_AND_DROP = false;
+    this.rainbow = [];
+    numColrs = 20;
+    for (i = j = 0, ref = numColrs; 0 <= ref ? j <= ref : j >= ref; i = 0 <= ref ? ++j : --j) {
+      this.rainbow.push("hsl(" + (i * 360 / numColrs) + ",100%,50%)");
+    }
   }
 
   DisplayBoard.prototype.showGameState = function(gameBoard) {
-    var cardFileName, cardHeight, cardId, cardWidth, colIdx, displayHeight, displayWidth, i, j, ref, ref1, rowIdx;
+    var cardFileName, cardHeight, cardId, cardWidth, colIdx, displayHeight, displayWidth, j, k, ref, ref1, rowIdx;
     displayWidth = jQuery(this.selectorForPage).width();
     displayHeight = jQuery(this.selectorForPage).height();
     cardWidth = displayWidth / gameBoard.numCols;
     cardHeight = cardWidth * 1.545;
     jQuery('.game-board').html("");
-    for (rowIdx = i = 0, ref = gameBoard.numRows - 1; 0 <= ref ? i <= ref : i >= ref; rowIdx = 0 <= ref ? ++i : --i) {
+    for (rowIdx = j = 0, ref = gameBoard.numRows - 1; 0 <= ref ? j <= ref : j >= ref; rowIdx = 0 <= ref ? ++j : --j) {
       jQuery('.game-board').append("<div class='row' id='row" + rowIdx + "'></div>");
-      for (colIdx = j = 0, ref1 = gameBoard.numCols - 1; 0 <= ref1 ? j <= ref1 : j >= ref1; colIdx = 0 <= ref1 ? ++j : --j) {
+      for (colIdx = k = 0, ref1 = gameBoard.numCols - 1; 0 <= ref1 ? k <= ref1 : k >= ref1; colIdx = 0 <= ref1 ? ++k : --k) {
         cardId = gameBoard.getCardId(rowIdx, colIdx);
         cardFileName = this.basePath + "cards/" + gameBoard.getCardFileName(rowIdx, colIdx);
         jQuery("#row" + rowIdx).append("<img id='cardid" + cardId + "' class='card' width='" + cardWidth + "px' height='" + cardHeight + "px' src='" + cardFileName + "'></img>");
       }
     }
-    jQuery('.game-status-box').html("Turn " + (gameBoard.turns + 1));
+    jQuery('.game-status-box').html("Turn " + (gameBoard.turns + 1) + " Score " + (gameBoard.getBoardScore()[0]));
+    jQuery('.hint-info-box').hide();
     jQuery('.card').click(this.onCardClick);
     if (this.USE_DRAG_AND_DROP) {
       jQuery('.card').draggable({
@@ -104,10 +111,9 @@ DisplayBoard = (function() {
   };
 
   DisplayBoard.prototype.addArrow = function(fromPos, toPos, moveIdx) {
-    var dString, lineColour, lineColours, newArrow;
-    lineColours = ["aqua", "blue", "brown", "coral", "crimson", "fuchsia", "gold", "hotpink", "magenta", "orangered", "purple", "violet", "yellow"];
+    var dString, lineColour, newArrow;
     dString = "M" + fromPos.left + "," + fromPos.top + " " + "L" + toPos.left + "," + toPos.top;
-    lineColour = moveIdx < lineColours.length ? lineColours[moveIdx] : "blue";
+    lineColour = moveIdx < this.rainbow.length ? this.rainbow[moveIdx] : "blue";
     newArrow = jQuery(document.createElementNS("http://www.w3.org/2000/svg", "path")).attr({
       d: dString,
       style: "stroke:" + lineColour + "; stroke-width: 5px; fill: none; marker-end: url(#arrow-" + lineColour + ")"
@@ -119,36 +125,72 @@ DisplayBoard = (function() {
     return jQuery('#arrowOverlay').find("g").empty();
   };
 
-  DisplayBoard.prototype.setSVGAreaSize = function() {
+  DisplayBoard.prototype.getSVGAreaSize = function() {
     var arrowArea;
     arrowArea = [jQuery('#gameboard').width(), jQuery('#gameboard').height()];
     jQuery('#arrowOverlay').width(arrowArea[0]);
-    return jQuery('#arrowOverlay').height(arrowArea[1]);
+    jQuery('#arrowOverlay').height(arrowArea[1]);
+    return arrowArea;
   };
 
-  DisplayBoard.prototype.showPossibleMoveArrows = function(possMoves) {
-    var cardSize, fromCentre, fromId, fromOffs, i, len, moveIdx, possMove, results, toCentre, toId, toOffs;
-    this.setSVGAreaSize();
+  DisplayBoard.prototype.showPossibleMoveArrows = function(allPossMoves) {
+    var arrowArea, cardHeight, cardWidth, fromCentre, j, len, movesAtLevel, possMove, results, startMove, startMoveIdx, toCentre;
+    arrowArea = this.getSVGAreaSize();
+    cardWidth = arrowArea[0] / 13;
+    cardHeight = arrowArea[1] / 4;
     this.clearArrows();
     results = [];
-    for (moveIdx = i = 0, len = possMoves.length; i < len; moveIdx = ++i) {
-      possMove = possMoves[moveIdx];
-      fromId = "#cardid" + possMove[0];
-      toId = "#cardid" + possMove[1];
-      fromOffs = jQuery(fromId).offset();
-      toOffs = jQuery(toId).offset();
-      cardSize = [jQuery(fromId).width(), jQuery(fromId).height()];
-      fromCentre = {
-        left: fromOffs.left + cardSize[0] / 2,
-        top: fromOffs.top + cardSize[1] / 2
-      };
-      toCentre = {
-        left: toOffs.left + cardSize[0] / 2,
-        top: toOffs.top + cardSize[1] / 2
-      };
-      results.push(this.addArrow(fromCentre, toCentre, moveIdx));
+    for (startMoveIdx = j = 0, len = allPossMoves.length; j < len; startMoveIdx = ++j) {
+      startMove = allPossMoves[startMoveIdx];
+      results.push((function() {
+        var k, len1, results1;
+        results1 = [];
+        for (k = 0, len1 = startMove.length; k < len1; k++) {
+          movesAtLevel = startMove[k];
+          results1.push((function() {
+            var l, len2, results2;
+            results2 = [];
+            for (l = 0, len2 = movesAtLevel.length; l < len2; l++) {
+              possMove = movesAtLevel[l];
+              fromCentre = {
+                left: possMove[0][1] * cardWidth + cardWidth / 2,
+                top: possMove[0][0] * cardHeight + cardHeight / 2
+              };
+              toCentre = {
+                left: possMove[1][1] * cardWidth + cardWidth / 2,
+                top: possMove[1][0] * cardHeight + cardHeight / 2
+              };
+              results2.push(this.addArrow(fromCentre, toCentre, startMoveIdx));
+            }
+            return results2;
+          }).call(this));
+        }
+        return results1;
+      }).call(this));
     }
     return results;
+  };
+
+  DisplayBoard.prototype.showMoveSequence = function(moveSequence, bestMoveInfo) {
+    var arrowArea, cardHeight, cardWidth, fromCentre, j, len, moveIdx, possMove, toCentre;
+    arrowArea = this.getSVGAreaSize();
+    cardWidth = arrowArea[0] / 13;
+    cardHeight = arrowArea[1] / 4;
+    this.clearArrows();
+    for (moveIdx = j = 0, len = moveSequence.length; j < len; moveIdx = ++j) {
+      possMove = moveSequence[moveIdx];
+      fromCentre = {
+        left: possMove[0][1] * cardWidth + cardWidth / 2,
+        top: possMove[0][0] * cardHeight + cardHeight / 2
+      };
+      toCentre = {
+        left: possMove[1][1] * cardWidth + cardWidth / 2,
+        top: possMove[1][0] * cardHeight + cardHeight / 2
+      };
+      this.addArrow(fromCentre, toCentre, moveIdx);
+    }
+    jQuery('.hint-info-box').html("Best score " + bestMoveInfo);
+    return jQuery('.hint-info-box').show();
   };
 
   return DisplayBoard;

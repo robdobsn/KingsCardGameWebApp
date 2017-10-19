@@ -127,13 +127,13 @@ GameBoard = (function() {
         chkCardId = row[cardIdx];
         if (chkCardId === cardId) {
           if (cardIdx === 0) {
-            return [-1, rowIdx, cardIdx];
+            return [-1, rowIdx, cardIdx, 0, 0];
           }
-          return [this.board[rowIdx][cardIdx - 1], rowIdx, cardIdx];
+          return [this.board[rowIdx][cardIdx - 1], rowIdx, cardIdx, rowIdx, cardIdx - 1];
         }
       }
     }
-    return [-2, 0, 0];
+    return [-2, 0, 0, 0, 0];
   };
 
   GameBoard.prototype.getLocnOfCard = function(cardId) {
@@ -168,26 +168,33 @@ GameBoard = (function() {
   };
 
   GameBoard.prototype.getValidMovesForEmptySq = function(toCardId) {
-    var cardToLeftId, clickedCol, clickedRow, i, nextCard, ref, suitIdx, validMoves;
+    var cardCol, cardLocn, cardRow, cardToLeftId, cardToMove, i, nextCard, ref, spaceCol, spaceRow, suitIdx, validMoves;
     validMoves = [];
-    ref = this.getCardToLeftInfo(toCardId), cardToLeftId = ref[0], clickedRow = ref[1], clickedCol = ref[2];
-    if (clickedCol === 0) {
+    ref = this.getCardToLeftInfo(toCardId), cardToLeftId = ref[0], spaceRow = ref[1], spaceCol = ref[2], cardRow = ref[3], cardCol = ref[4];
+    if (cardToLeftId === -1 && spaceCol === 0) {
       for (suitIdx = i = 0; i <= 3; suitIdx = ++i) {
-        validMoves.push([this.playingCards.getCardId(suitIdx, this.playingCards.TwoId), toCardId]);
+        cardToMove = this.playingCards.getCardId(suitIdx, this.playingCards.TwoId);
+        if (cardToMove >= 0) {
+          cardLocn = this.getLocnOfCard(cardToMove);
+          if (cardLocn[2] !== 0) {
+            validMoves.push([[cardLocn[1], cardLocn[2]], [spaceRow, spaceCol]]);
+          }
+        }
       }
-    } else if (cardToLeftId !== -1) {
+    } else if (cardToLeftId >= 0) {
       nextCard = this.playingCards.findNextCardInSameSuit(cardToLeftId);
-      if (nextCard !== -1) {
-        validMoves.push([nextCard, toCardId]);
+      cardLocn = this.getLocnOfCard(nextCard);
+      if (nextCard >= 0) {
+        validMoves.push([[cardLocn[1], cardLocn[2]], [spaceRow, spaceCol]]);
       }
     }
     return validMoves;
   };
 
   GameBoard.prototype.moveValidCardToEmptyPlace = function(toCardId) {
-    var cardToLeftId, clickedCol, clickedRow, fromCardId, ref;
+    var cardCol, cardRow, cardToLeftId, clickedCol, clickedRow, fromCardId, ref;
     if (toCardId < 0) {
-      ref = this.getCardToLeftInfo(toCardId), cardToLeftId = ref[0], clickedRow = ref[1], clickedCol = ref[2];
+      ref = this.getCardToLeftInfo(toCardId), cardToLeftId = ref[0], clickedRow = ref[1], clickedCol = ref[2], cardRow = ref[3], cardCol = ref[4];
       if (cardToLeftId === -1) {
         return ["select2", 0, 0, clickedRow, clickedCol];
       }
@@ -202,7 +209,7 @@ GameBoard = (function() {
   };
 
   GameBoard.prototype.moveCardIfValid = function(fromCardId, toCardId) {
-    var cardToLeftId, clickedCol, clickedRow, moveOk, ok, ref, ref1, toColIdx, toRowIdx;
+    var cardCol, cardRow, cardToLeftId, clickedCol, clickedRow, moveOk, ok, ref, ref1, toColIdx, toRowIdx;
     if (toCardId < 0) {
       moveOk = false;
       if (this.playingCards.getCardInfo(fromCardId).rankIdx === this.playingCards.TwoId) {
@@ -211,7 +218,7 @@ GameBoard = (function() {
           moveOk = true;
         }
       } else {
-        ref1 = this.getCardToLeftInfo(toCardId), cardToLeftId = ref1[0], clickedRow = ref1[1], clickedCol = ref1[2];
+        ref1 = this.getCardToLeftInfo(toCardId), cardToLeftId = ref1[0], clickedRow = ref1[1], clickedCol = ref1[2], cardRow = ref1[3], cardCol = ref1[4];
         if (cardToLeftId >= 0) {
           if (fromCardId === this.playingCards.findNextCardInSameSuit(cardToLeftId)) {
             moveOk = true;
@@ -240,6 +247,14 @@ GameBoard = (function() {
     return ["none", 0, 0, 0, 0];
   };
 
+  GameBoard.prototype.moveCardUsingRowAndColInfo = function(fromRowCol, toRowCol) {
+    var gapId;
+    gapId = this.board[toRowCol[0]][toRowCol[1]];
+    this.board[toRowCol[0]][toRowCol[1]] = this.board[fromRowCol[0]][fromRowCol[1]];
+    this.board[fromRowCol[0]][fromRowCol[1]] = gapId;
+    return ["ok", fromRowCol[0], fromRowCol[1], toRowCol[0], toRowCol[1]];
+  };
+
   GameBoard.prototype.getCardName = function(cardId) {};
 
   GameBoard.prototype.debugDump = function(debugStr) {
@@ -255,6 +270,47 @@ GameBoard = (function() {
       results.push(console.log(rowStr));
     }
     return results;
+  };
+
+  GameBoard.prototype.getBoardScore = function() {
+    var cardId, col, i, j, k, kingSpaces, l, lastCardWasKing, rawScore, ref, ref1, ref2, ref3, row, rowSuit;
+    rawScore = 0;
+    for (row = i = 0, ref = this.numRows - 1; 0 <= ref ? i <= ref : i >= ref; row = 0 <= ref ? ++i : --i) {
+      rowSuit = -1;
+      for (col = j = 0, ref1 = this.numCols - 1; 0 <= ref1 ? j <= ref1 : j >= ref1; col = 0 <= ref1 ? ++j : --j) {
+        cardId = this.getCardId(row, col);
+        if (col === 0) {
+          if (this.playingCards.getCardRank(cardId) === this.playingCards.TwoId) {
+            rowSuit = this.playingCards.getCardSuit(cardId);
+            rawScore++;
+          } else {
+            break;
+          }
+        } else {
+          if (this.playingCards.getCardRank(cardId) === col + 1 && this.playingCards.getCardSuit(cardId) === rowSuit) {
+            rawScore++;
+          } else {
+            break;
+          }
+        }
+      }
+    }
+    kingSpaces = 0;
+    for (row = k = 0, ref2 = this.numRows - 1; 0 <= ref2 ? k <= ref2 : k >= ref2; row = 0 <= ref2 ? ++k : --k) {
+      lastCardWasKing = false;
+      for (col = l = 0, ref3 = this.numCols - 1; 0 <= ref3 ? l <= ref3 : l >= ref3; col = 0 <= ref3 ? ++l : --l) {
+        cardId = this.getCardId(row, col);
+        if (this.playingCards.getCardRank(cardId) === this.playingCards.KingId) {
+          lastCardWasKing = true;
+        } else {
+          if (cardId < 0 && lastCardWasKing) {
+            kingSpaces++;
+          }
+          lastCardWasKing = false;
+        }
+      }
+    }
+    return [rawScore - kingSpaces * 3, rawScore, kingSpaces];
   };
 
   return GameBoard;

@@ -46,13 +46,25 @@
     }
     .game-buttons
     {
+      float: left;
+      margin-right: 20px;
     }
     .game-status
     {
       float:left;
       margin-right: 20px;
     }
+    .hint-info
+    {
+      float:left;
+      margin-right: 20px;
+    }
     .game-status-box
+    {
+      padding: .4em 1em;
+      color: blue;
+    }
+    .hint-info-box
     {
       padding: .4em 1em;
       color: blue;
@@ -78,19 +90,8 @@
     kingsGame.start();
   };
   </script>
-  <div class="game-board" id="gameboard"></div>
-  <div class="game-status ui-widget ui-widget-content ui-corner-all">
-    <div class="game-status-box">Turn 1</div>
-  </div>
-  <div class="game-buttons">
-    <div class="game-button-next">Next</div>
-    <div class="game-button-undo">Undo</div>
-    <div class="game-button-redo">Redo</div>
-    <div class="game-button-hint">Hint</div>
-  </div>
-  <div class="click-on-two"><div><span>Click on the 2 to move</span></div></div>
-  <div class="arrowsOverlay">
-  <svg id="arrowOverlay" width="300" height="100">
+  <div class="arrowsOverlay" style="pointer-events: none">
+  <svg id="arrowOverlay" width="300" height="100" pointer-events="none">
   <defs>
     <marker id="arrow-aqua" markerWidth="30" markerHeight="30" refx="2" refy="6" orient="auto">
         <path d="M2,1 L2,10 L10,6 L2,2" style="fill:aqua;" />
@@ -138,5 +139,19 @@
 
   </svg>
   </div>
+  <div class="game-board" id="gameboard"></div>
+  <div class="game-status ui-widget ui-widget-content ui-corner-all">
+    <div class="game-status-box">Turn 1</div>
+  </div>
+  <div class="game-buttons">
+    <div class="game-button-next">Next</div>
+    <div class="game-button-undo">Undo</div>
+    <div class="game-button-redo">Redo</div>
+    <div class="game-button-hint">Hint</div>
+  </div>
+  <div class="hint-info ui-widget ui-widget-content ui-corner-all">
+    <div class="hint-info-box"></div>
+  </div>
+  <div class="click-on-two"><div><span>Click on the 2 to move</span></div></div>
 </body>
 </html>

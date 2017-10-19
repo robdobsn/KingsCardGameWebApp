@@ -85,3 +85,12 @@ class PlayingCards
 	addCard: (cardId) ->
 		@deck.push cardId
 
+	getCardRank: (cardId) ->
+		if cardId < 0
+			return -1
+		return cardId % @cardsInSuit
+
+	getCardSuit: (cardId) ->
+		if cardId < 0
+			return -1
+		return Math.floor (cardId / @cardsInSuit)
