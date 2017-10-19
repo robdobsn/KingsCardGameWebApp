@@ -13,48 +13,33 @@ GameBoard = (function() {
   }
 
   GameBoard.prototype.copy = function(copyFrom) {
-    var i, ref, row;
-    this.board = [];
-    for (row = i = 0, ref = this.numRows - 1; 0 <= ref ? i <= ref : i >= ref; row = 0 <= ref ? ++i : --i) {
-      this.board.push(copyFrom.board[row].slice(0));
-    }
+    this.board = copyFrom.board.slice(0);
     this.turns = copyFrom.turns;
     return true;
   };
 
   GameBoard.prototype.deal = function() {
-    var boardRow, col, i, j, ref, ref1, row;
+    var i, idx, ref;
     this.board = [];
     this.playingCards.startDeal();
-    for (row = i = 0, ref = this.numRows - 1; 0 <= ref ? i <= ref : i >= ref; row = 0 <= ref ? ++i : --i) {
-      boardRow = [];
-      for (col = j = 0, ref1 = this.numCols - 1; 0 <= ref1 ? j <= ref1 : j >= ref1; col = 0 <= ref1 ? ++j : --j) {
-        boardRow.push(this.playingCards.getNextCard());
-      }
-      this.board.push(boardRow);
+    for (idx = i = 0, ref = this.playingCards.cardsInDeck - 1; 0 <= ref ? i <= ref : i >= ref; idx = 0 <= ref ? ++i : --i) {
+      this.board.push(this.playingCards.getNextCard());
     }
     return true;
   };
 
   GameBoard.prototype.removeAces = function() {
-    var cardId, colIdx, gapCardId, i, ref, results, rowIdx;
+    var cardId, gapCardId, i, idx, ref, results;
     gapCardId = -1;
     results = [];
-    for (rowIdx = i = 0, ref = this.numRows - 1; 0 <= ref ? i <= ref : i >= ref; rowIdx = 0 <= ref ? ++i : --i) {
-      results.push((function() {
-        var j, ref1, results1;
-        results1 = [];
-        for (colIdx = j = 0, ref1 = this.numCols - 1; 0 <= ref1 ? j <= ref1 : j >= ref1; colIdx = 0 <= ref1 ? ++j : --j) {
-          cardId = this.board[rowIdx][colIdx];
-          if (this.playingCards.getCardInfo(cardId).rankIdx === this.playingCards.AceId) {
-            this.board[rowIdx][colIdx] = gapCardId;
-            results1.push(gapCardId -= 1);
-          } else {
-            results1.push(void 0);
-          }
-        }
-        return results1;
-      }).call(this));
+    for (idx = i = 0, ref = this.playingCards.cardsInDeck - 1; 0 <= ref ? i <= ref : i >= ref; idx = 0 <= ref ? ++i : --i) {
+      cardId = this.board[idx];
+      if (this.playingCards.getCardInfo(cardId).rankIdx === this.playingCards.AceId) {
+        this.board[idx] = gapCardId;
+        results.push(gapCardId -= 1);
+      } else {
+        results.push(void 0);
+      }
     }
     return results;
   };
@@ -65,7 +50,7 @@ GameBoard = (function() {
     for (rowIdx = i = 0, ref = this.numRows - 1; 0 <= ref ? i <= ref : i >= ref; rowIdx = 0 <= ref ? ++i : --i) {
       suitIdxForRow = -1;
       for (colIdx = j = 0, ref1 = this.numCols - 1; 0 <= ref1 ? j <= ref1 : j >= ref1; colIdx = 0 <= ref1 ? ++j : --j) {
-        cardId = this.board[rowIdx][colIdx];
+        cardId = this.board[rowIdx * this.numCols + colIdx];
         cardInfo = this.playingCards.getCardInfo(cardId);
         if (colIdx === 0) {
           suitIdxForRow = cardInfo.suitIdx;
@@ -75,13 +60,12 @@ GameBoard = (function() {
           break;
         }
       }
-      console.log(colsToRedealFrom[colsToRedealFrom.length - 1]);
     }
     deck = new PlayingCards();
     deck.empty();
     for (rowIdx = k = 0, ref2 = this.numRows - 1; 0 <= ref2 ? k <= ref2 : k >= ref2; rowIdx = 0 <= ref2 ? ++k : --k) {
       for (colIdx = l = ref3 = colsToRedealFrom[rowIdx], ref4 = this.numCols - 1; ref3 <= ref4 ? l <= ref4 : l >= ref4; colIdx = ref3 <= ref4 ? ++l : --l) {
-        cardId = this.board[rowIdx][colIdx];
+        cardId = this.board[rowIdx * this.numCols + colIdx];
         if (cardId >= 0) {
           deck.addCard(cardId);
         }
@@ -90,12 +74,12 @@ GameBoard = (function() {
     deck.shuffle();
     deck.startDeal();
     for (rowIdx = m = 0, ref5 = this.numRows - 1; 0 <= ref5 ? m <= ref5 : m >= ref5; rowIdx = 0 <= ref5 ? ++m : --m) {
-      this.board[rowIdx][colsToRedealFrom[rowIdx]] = -rowIdx - 1;
+      this.board[rowIdx * this.numCols + colsToRedealFrom[rowIdx]] = -rowIdx - 1;
       if (colsToRedealFrom[rowIdx] + 1 < this.numCols) {
         for (colIdx = n = ref6 = colsToRedealFrom[rowIdx] + 1, ref7 = this.numCols - 1; ref6 <= ref7 ? n <= ref7 : n >= ref7; colIdx = ref6 <= ref7 ? ++n : --n) {
           cardId = deck.getNextCard();
           if (cardId >= 0) {
-            this.board[rowIdx][colIdx] = cardId;
+            this.board[rowIdx * this.numCols + colIdx] = cardId;
           }
         }
       }
@@ -105,27 +89,25 @@ GameBoard = (function() {
   };
 
   GameBoard.prototype.getCardId = function(rowIdx, colIdx) {
-    return this.board[rowIdx][colIdx];
+    return this.board[rowIdx * this.numCols + colIdx];
   };
 
   GameBoard.prototype.getCardFileName = function(rowIdx, colIdx) {
     var cardId;
-    cardId = this.board[rowIdx][colIdx];
+    cardId = this.board[rowIdx * this.numCols + colIdx];
     return this.playingCards.getCardFileName(cardId);
   };
 
   GameBoard.prototype.getCardToLeftInfo = function(cardId) {
-    var cardIdx, chkCardId, i, j, len, len1, ref, row, rowIdx;
-    ref = this.board;
-    for (rowIdx = i = 0, len = ref.length; i < len; rowIdx = ++i) {
-      row = ref[rowIdx];
-      for (cardIdx = j = 0, len1 = row.length; j < len1; cardIdx = ++j) {
-        chkCardId = row[cardIdx];
+    var chkCardId, colIdx, i, j, ref, ref1, rowIdx;
+    for (rowIdx = i = 0, ref = this.numRows - 1; 0 <= ref ? i <= ref : i >= ref; rowIdx = 0 <= ref ? ++i : --i) {
+      for (colIdx = j = 0, ref1 = this.numCols - 1; 0 <= ref1 ? j <= ref1 : j >= ref1; colIdx = 0 <= ref1 ? ++j : --j) {
+        chkCardId = this.board[rowIdx * this.numCols + colIdx];
         if (chkCardId === cardId) {
-          if (cardIdx === 0) {
-            return [-1, rowIdx, cardIdx, 0, 0];
+          if (colIdx === 0) {
+            return [-1, rowIdx, colIdx, 0, 0];
           }
-          return [this.board[rowIdx][cardIdx - 1], rowIdx, cardIdx, rowIdx, cardIdx - 1];
+          return [this.board[rowIdx * this.numCols + colIdx - 1], rowIdx, colIdx, rowIdx, colIdx - 1];
         }
       }
     }
@@ -133,12 +115,10 @@ GameBoard = (function() {
   };
 
   GameBoard.prototype.getLocnOfCard = function(cardId) {
-    var chkCardId, colIdx, i, j, len, len1, ref, row, rowIdx;
-    ref = this.board;
-    for (rowIdx = i = 0, len = ref.length; i < len; rowIdx = ++i) {
-      row = ref[rowIdx];
-      for (colIdx = j = 0, len1 = row.length; j < len1; colIdx = ++j) {
-        chkCardId = row[colIdx];
+    var chkCardId, colIdx, i, j, ref, ref1, rowIdx;
+    for (rowIdx = i = 0, ref = this.numRows - 1; 0 <= ref ? i <= ref : i >= ref; rowIdx = 0 <= ref ? ++i : --i) {
+      for (colIdx = j = 0, ref1 = this.numCols - 1; 0 <= ref1 ? j <= ref1 : j >= ref1; colIdx = 0 <= ref1 ? ++j : --j) {
+        chkCardId = this.board[rowIdx * this.numCols + colIdx];
         if (chkCardId === cardId) {
           return [true, rowIdx, colIdx];
         }
@@ -148,13 +128,11 @@ GameBoard = (function() {
   };
 
   GameBoard.prototype.getEmptySquares = function() {
-    var chkCardId, colIdx, emptySqList, i, j, len, len1, ref, row, rowIdx;
+    var chkCardId, colIdx, emptySqList, i, j, ref, ref1, rowIdx;
     emptySqList = [];
-    ref = this.board;
-    for (rowIdx = i = 0, len = ref.length; i < len; rowIdx = ++i) {
-      row = ref[rowIdx];
-      for (colIdx = j = 0, len1 = row.length; j < len1; colIdx = ++j) {
-        chkCardId = row[colIdx];
+    for (rowIdx = i = 0, ref = this.numRows - 1; 0 <= ref ? i <= ref : i >= ref; rowIdx = 0 <= ref ? ++i : --i) {
+      for (colIdx = j = 0, ref1 = this.numCols - 1; 0 <= ref1 ? j <= ref1 : j >= ref1; colIdx = 0 <= ref1 ? ++j : --j) {
+        chkCardId = this.board[rowIdx * this.numCols + colIdx];
         if (chkCardId < 0) {
           emptySqList.push([rowIdx, colIdx]);
         }
@@ -234,9 +212,9 @@ GameBoard = (function() {
     if (ok) {
       ref1 = this.getLocnOfCard(toCardId), ok = ref1[0], toRowIdx = ref1[1], toColIdx = ref1[2];
       if (ok) {
-        gapId = this.board[toRowIdx][toColIdx];
-        this.board[toRowIdx][toColIdx] = this.board[fromRowIdx][fromColIdx];
-        this.board[fromRowIdx][fromColIdx] = gapId;
+        gapId = this.board[toRowIdx * this.numCols + toColIdx];
+        this.board[toRowIdx * this.numCols + toColIdx] = this.board[fromRowIdx * this.numCols + fromColIdx];
+        this.board[fromRowIdx * this.numCols + fromColIdx] = gapId;
         return ["ok", fromRowIdx, fromColIdx, toRowIdx, toColIdx];
       }
     }
@@ -245,9 +223,9 @@ GameBoard = (function() {
 
   GameBoard.prototype.moveCardUsingRowAndColInfo = function(fromRowCol, toRowCol) {
     var gapId;
-    gapId = this.board[toRowCol[0]][toRowCol[1]];
-    this.board[toRowCol[0]][toRowCol[1]] = this.board[fromRowCol[0]][fromRowCol[1]];
-    this.board[fromRowCol[0]][fromRowCol[1]] = gapId;
+    gapId = this.board[toRowCol[0] * this.numCols + toRowCol[1]];
+    this.board[toRowCol[0] * this.numCols + toRowCol[1]] = this.board[fromRowCol[0] * this.numCols + fromRowCol[1]];
+    this.board[fromRowCol[0] * this.numCols + fromRowCol[1]] = gapId;
     return ["ok", fromRowCol[0], fromRowCol[1], toRowCol[0], toRowCol[1]];
   };
 
@@ -269,8 +247,9 @@ GameBoard = (function() {
   };
 
   GameBoard.prototype.getBoardScore = function() {
-    var cardId, col, factoredScore, i, j, k, kingLastColumns, kingSpaces, l, lastCardWasKing, rawScore, ref, ref1, ref2, ref3, row, rowSuit;
+    var cardId, col, completeRows, factoredScore, i, j, k, kingLastColumns, kingSpaces, l, lastCardWasKing, rawScore, ref, ref1, ref2, ref3, row, rowSuit;
     rawScore = 0;
+    completeRows = 0;
     for (row = i = 0, ref = this.numRows - 1; 0 <= ref ? i <= ref : i >= ref; row = 0 <= ref ? ++i : --i) {
       rowSuit = -1;
       for (col = j = 0, ref1 = this.numCols - 1; 0 <= ref1 ? j <= ref1 : j >= ref1; col = 0 <= ref1 ? ++j : --j) {
@@ -285,6 +264,9 @@ GameBoard = (function() {
         } else {
           if (this.playingCards.getCardRank(cardId) === col + 1 && this.playingCards.getCardSuit(cardId) === rowSuit) {
             rawScore++;
+            if (col === this.numCols - 1) {
+              completeRows++;
+            }
           } else {
             break;
           }
@@ -311,7 +293,11 @@ GameBoard = (function() {
         }
       }
     }
-    factoredScore = rawScore - kingSpaces + kingLastColumns;
+    if (completeRows === 4) {
+      factoredScore = 100;
+    } else {
+      factoredScore = rawScore - kingSpaces + kingLastColumns + completeRows * 5;
+    }
     return [factoredScore, rawScore];
   };
 

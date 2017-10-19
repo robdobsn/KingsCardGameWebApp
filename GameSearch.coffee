@@ -5,7 +5,7 @@ class GameSearch
     @bestMoveList = []
     @maxRecurseDepth = 15
     @movesConsidered = 0
-    @maxMovesToConsider = 1000000
+    @maxMovesToConsider = 2000000
 
   getPossibleMoves: (gameBoard) ->
 #    gameBoard.debugDump("Debug")

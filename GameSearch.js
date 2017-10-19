@@ -7,7 +7,7 @@ GameSearch = (function() {
     this.bestMoveList = [];
     this.maxRecurseDepth = 15;
     this.movesConsidered = 0;
-    this.maxMovesToConsider = 1000000;
+    this.maxMovesToConsider = 2000000;
   }
 
   GameSearch.prototype.getPossibleMoves = function(gameBoard) {

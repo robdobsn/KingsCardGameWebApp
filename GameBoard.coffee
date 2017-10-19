@@ -7,34 +7,24 @@ class GameBoard
 		@turns = 0
 
 	copy: (copyFrom) ->
-		@board = []
-		for row in [0..@numRows-1]
-			@board.push copyFrom.board[row].slice(0)
-#			boardRow = []
-#			for col in [0..@numCols-1]
-#				boardRow.push copyFrom.board[row][col]
-#			@board.push boardRow
+		@board = copyFrom.board.slice(0)
 		@turns = copyFrom.turns
 		return true
 
 	deal: () ->
 		@board = []
 		@playingCards.startDeal()
-		for row in [0..@numRows-1]
-			boardRow = []
-			for col in [0..@numCols-1]
-				boardRow.push @playingCards.getNextCard()
-			@board.push boardRow
+		for idx in [0..@playingCards.cardsInDeck-1]
+			@board.push @playingCards.getNextCard()
 		return true
 
 	removeAces: () ->
 		gapCardId = -1
-		for rowIdx in [0..@numRows-1]
-			for colIdx in [0..@numCols-1]
-				cardId = @board[rowIdx][colIdx]
-				if @playingCards.getCardInfo(cardId).rankIdx == @playingCards.AceId
-					@board[rowIdx][colIdx] = gapCardId
-					gapCardId -= 1
+		for idx in [0..@playingCards.cardsInDeck-1]
+			cardId = @board[idx]
+			if @playingCards.getCardInfo(cardId).rankIdx == @playingCards.AceId
+				@board[idx] = gapCardId
+				gapCardId -= 1
 	
 	redeal: () ->
 		# Leave any cards at start of row which are in their correct places
@@ -43,62 +33,65 @@ class GameBoard
 			# Find position of first card to be redealt
 			suitIdxForRow = -1
 			for colIdx in [0..@numCols-1]
-				cardId = @board[rowIdx][colIdx]
+				cardId = @board[rowIdx*@numCols+colIdx]
 				cardInfo = @playingCards.getCardInfo(cardId)
 				if colIdx == 0
 					suitIdxForRow = cardInfo.suitIdx
 				if cardInfo.isGap or cardInfo.rankIdx-1 != colIdx or cardInfo.suitIdx != suitIdxForRow
 					colsToRedealFrom.push colIdx
 					break
-			console.log colsToRedealFrom[colsToRedealFrom.length-1]
+#			console.log colsToRedealFrom[colsToRedealFrom.length-1]
 		# Create deck from remaining cards 
 		deck = new PlayingCards()
 		deck.empty()
 		for rowIdx in [0..@numRows-1]
 			for colIdx in [colsToRedealFrom[rowIdx]..@numCols-1]
-				cardId = @board[rowIdx][colIdx]
+				cardId = @board[rowIdx*@numCols+colIdx]
 				if cardId >= 0
 					deck.addCard(cardId)
 		deck.shuffle()
 		# Redeal
 		deck.startDeal()
 		for rowIdx in [0..@numRows-1]
-			@board[rowIdx][colsToRedealFrom[rowIdx]] = -rowIdx - 1
+			@board[rowIdx*@numCols+colsToRedealFrom[rowIdx]] = -rowIdx - 1
 			if colsToRedealFrom[rowIdx]+1 < @numCols
 				for colIdx in [colsToRedealFrom[rowIdx]+1..@numCols-1]
 					cardId = deck.getNextCard()
 					if cardId >= 0
-						@board[rowIdx][colIdx] = cardId
+						@board[rowIdx*@numCols+colIdx] = cardId
 		@turns += 1
 		return true
 
 	getCardId: (rowIdx, colIdx) ->
-		return @board[rowIdx][colIdx]
+		return @board[rowIdx*@numCols+colIdx]
 
 	getCardFileName: (rowIdx, colIdx) ->
-		cardId = @board[rowIdx][colIdx]
+		cardId = @board[rowIdx*@numCols+colIdx]
 		return @playingCards.getCardFileName(cardId)
 
 	getCardToLeftInfo: (cardId) ->
-		for row, rowIdx in @board
-			for chkCardId, cardIdx in row
+		for rowIdx in [0..@numRows-1]
+			for colIdx in [0..@numCols-1]
+				chkCardId = @board[rowIdx*@numCols+colIdx]
 				if chkCardId == cardId
-					if cardIdx == 0
-						return [-1, rowIdx, cardIdx,0,0]
-					return [@board[rowIdx][cardIdx-1],rowIdx,cardIdx,rowIdx,cardIdx-1]
+					if colIdx == 0
+						return [-1, rowIdx, colIdx,0,0]
+					return [@board[rowIdx*@numCols+colIdx-1],rowIdx,colIdx,rowIdx,colIdx-1]
 		return [-2,0,0,0,0]
 
 	getLocnOfCard: (cardId) ->
-		for row, rowIdx in @board
-			for chkCardId, colIdx in row
+		for rowIdx in [0..@numRows-1]
+			for colIdx in [0..@numCols-1]
+				chkCardId = @board[rowIdx*@numCols+colIdx]
 				if chkCardId == cardId
 					return [true, rowIdx, colIdx]
 		return [false, 0, 0]
 
 	getEmptySquares: () ->
 		emptySqList = []
-		for row, rowIdx in @board
-			for chkCardId, colIdx in row
+		for rowIdx in [0..@numRows-1]
+			for colIdx in [0..@numCols-1]
+				chkCardId = @board[rowIdx*@numCols+colIdx]
 				if chkCardId < 0
 					emptySqList.push [rowIdx, colIdx]
 		return emptySqList
@@ -161,16 +154,16 @@ class GameBoard
 		if ok 
 			[ok, toRowIdx, toColIdx] = @getLocnOfCard(toCardId)
 			if ok
-				gapId = @board[toRowIdx][toColIdx]
-				@board[toRowIdx][toColIdx] = @board[fromRowIdx][fromColIdx]
-				@board[fromRowIdx][fromColIdx] = gapId
+				gapId = @board[toRowIdx*@numCols+toColIdx]
+				@board[toRowIdx*@numCols+toColIdx] = @board[fromRowIdx*@numCols+fromColIdx]
+				@board[fromRowIdx*@numCols+fromColIdx] = gapId
 				return [ "ok", fromRowIdx, fromColIdx, toRowIdx, toColIdx ]
 		return ["none",0,0,0,0]
 
 	moveCardUsingRowAndColInfo: (fromRowCol, toRowCol) ->
-		gapId = @board[toRowCol[0]][toRowCol[1]]
-		@board[toRowCol[0]][toRowCol[1]] = @board[fromRowCol[0]][fromRowCol[1]]
-		@board[fromRowCol[0]][fromRowCol[1]] = gapId
+		gapId = @board[toRowCol[0]*@numCols+toRowCol[1]]
+		@board[toRowCol[0]*@numCols+toRowCol[1]] = @board[fromRowCol[0]*@numCols+fromRowCol[1]]
+		@board[fromRowCol[0]*@numCols+fromRowCol[1]] = gapId
 		return [ "ok", fromRowCol[0], fromRowCol[1], toRowCol[0], toRowCol[1] ]
 
 	getCardName: (cardId) ->
@@ -186,6 +179,7 @@ class GameBoard
 
 	getBoardScore: () ->
 		rawScore = 0
+		completeRows = 0
 		for row in [0..@numRows-1]
 			rowSuit = -1
 			for col in [0..@numCols-1]
@@ -199,6 +193,8 @@ class GameBoard
 				else
 					if @playingCards.getCardRank(cardId) == col+1 and @playingCards.getCardSuit(cardId) == rowSuit
 						rawScore++
+						if col == @numCols-1
+							completeRows++
 					else
 						break
 		kingSpaces = 0
@@ -217,7 +213,8 @@ class GameBoard
 						kingSpaces++
 					lastCardWasKing = false
 		# Compute factored score
-		factoredScore = rawScore - kingSpaces + kingLastColumns
+		if completeRows == 4
+			factoredScore = 100
+		else
+			factoredScore = rawScore - kingSpaces + kingLastColumns + completeRows*5
 		return [factoredScore, rawScore]
-
-
