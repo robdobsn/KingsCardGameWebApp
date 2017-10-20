@@ -1,6 +1,8 @@
 class GameSearch
 
   constructor: () ->
+    @searchDepthAtLayer = [5] #[13,12,12,11,11,11,11,11,10]
+    @maxMovesAtLayer = [100000] #[1000000,500000,500000,250000]
     @bestFactoredScore = -10000
     @bestMoveList = []
     @maxRecurseDepth = 12
@@ -18,12 +20,12 @@ class GameSearch
   getDynamicTree: (startBoard, displayBoard) ->
     @dynamicMoveList = []
     @dynamicFactoredScore = -10000
-    @maxRecurseDepth = 15
-    @maxMovesToConsider = 2000000
     # Start position will move on as routes are found
     dynamicBoard = startBoard.clone()
-    for dynamicIncrements in [0..100]
-      console.log "Dynamic tree " + dynamicIncrements
+    for dynIdx in [0..100]
+      console.log "Dynamic tree " + dynIdx
+      @maxRecurseDepth = if @searchDepthAtLayer.length > dynIdx then @searchDepthAtLayer[dynIdx] else @searchDepthAtLayer[@searchDepthAtLayer.length-1]
+      @maxMovesToConsider = if @maxMovesAtLayer.length > dynIdx then @maxMovesAtLayer[dynIdx] else @maxMovesAtLayer[@maxMovesAtLayer.length-1]
       @bestFactoredScore = -10000
       @bestMoveList = []
       # Get the possible moves from start position
@@ -50,10 +52,6 @@ class GameSearch
       @dynamicFactoredScore = @bestFactoredScore
       # Create a copy of game board and play the best move
       dynamicBoard.moveCardUsingRowAndColInfo(bestMove[0], bestMove[1])
-      # Reduce search depth dynamically
-      if @maxRecurseDepth > 10
-        @maxRecurseDepth--
-        @maxMovesToConsider -= 200000
       # Preview if required
       if displayBoard is not null
         displayBoard.showMoveSequence(@dynamicMoveList, @dynamicFactoredScore, 0, true)

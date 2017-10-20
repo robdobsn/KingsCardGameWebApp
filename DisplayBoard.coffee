@@ -4,9 +4,11 @@ class DisplayBoard
 		@registerListeners()
 		@USE_DRAG_AND_DROP = false
 		@rainbow = []
-		numColrs = 20
-		for i in [0..numColrs]
-			@rainbow.push "hsl(#{i*360/numColrs},100%,50%)"
+		@arrowBaseIdx = 0
+
+	createArrowColours: (numColours) ->
+		for i in [0..numColours]
+			@rainbow.push "hsl(#{i*360/numColours},100%,50%)"
 
 	showGameState: (gameBoard) ->
 		# Calculate playing area dimensions
@@ -85,18 +87,32 @@ class DisplayBoard
 		return jQuery(".click-on-two").is(":visible")
 
 	addArrow: (fromPos, toPos, moveIdx) ->
-
-#		lineColours = ["aqua", "blue", "brown", "coral", "crimson", "fuchsia", "gold", "hotpink", "magenta", "orangered", "purple", "violet", "yellow"]
 		dString = "M" + fromPos.left + "," + fromPos.top + " " + "L" + toPos.left + "," + toPos.top
 		lineColour = if moveIdx < @rainbow.length then @rainbow[moveIdx] else "blue"
 		newArrow = jQuery(document.createElementNS("http://www.w3.org/2000/svg", "path")).attr({
         d: dString,
-        style: "stroke:#{lineColour}; stroke-width: 5px; fill: none; marker-end: url(#arrow-#{lineColour})"
-    });
+        style: "stroke:#{lineColour}; stroke-width: 3px; fill: none; marker-end: url(#arrow-#{@arrowBaseIdx})"
+    })
 		jQuery('#arrowOverlay').find("g").append newArrow
+		# arrow marker (arrowhead)
+		newMarker = document.createElementNS("http://www.w3.org/2000/svg", "marker")
+		newMarker.setAttribute("id", "arrow-#{@arrowBaseIdx}")
+		newMarker.setAttribute("markerWidth", "10")
+		newMarker.setAttribute("markerHeight", "10")
+		newMarker.setAttribute("refX", "9")
+		newMarker.setAttribute("refY", "6")
+		newMarker.setAttribute("orient", "auto")
+		newMarkerPath = document.createElementNS("http://www.w3.org/2000/svg", "path")
+		newMarkerPath.setAttribute("fill", "#{lineColour}")
+		newMarkerPath.setAttribute("d", "M2,1 L2,10 L10,6 L2,2")
+		newMarker.appendChild newMarkerPath
+		jQuery('#arrowOverlay').find("defs").append newMarker
+		@arrowBaseIdx++
 
 	clearArrows: () ->
+		@arrowBaseIdx = 0
 		jQuery('#arrowOverlay').find("g").empty()
+#		jQuery('#arrowOverlay').find("defs").empty()
 		jQuery('.hint-info').css('visibility', 'hidden')
 
 	getSVGAreaSize: () ->
@@ -117,11 +133,14 @@ class DisplayBoard
 					toCentre = {left: possMove[1][1] * cardWidth + cardWidth/2, top: possMove[1][0] * cardHeight + cardHeight/2}
 					@addArrow(fromCentre, toCentre, startMoveIdx)
 
-	showMoveSequence: (moveSequence, bestMoveInfo, fromMoveIdx) ->
+	showMoveSequence: (moveSequence, bestMoveInfo, fromMoveIdx, isPreview) ->
 		arrowArea = @getSVGAreaSize()
 		cardWidth = arrowArea[0]/13
 		cardHeight = arrowArea[1]/4
 		@clearArrows()
+		# Reset arrow colours
+		@createArrowColours(if isPreview then 30 else moveSequence.length)
+		# Create arrows
 		for possMove, moveIdx in moveSequence
 			if moveIdx < fromMoveIdx
 				continue

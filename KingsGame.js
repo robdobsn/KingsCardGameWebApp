@@ -96,7 +96,7 @@ KingsGame = (function() {
     this.displayBoard.showGameState(this.gameBoard);
     if (this.hintMoveIdx >= 0) {
       bestMoves = this.gameSearch.getBestMoves();
-      return this.displayBoard.showMoveSequence(bestMoves[0], bestMoves[1], this.hintMoveIdx);
+      return this.displayBoard.showMoveSequence(bestMoves[0], bestMoves[1], this.hintMoveIdx, false);
     }
   };
 
@@ -109,7 +109,7 @@ KingsGame = (function() {
     if (this.hintMoveIdx > 0) {
       this.hintMoveIdx--;
       bestMoves = this.gameSearch.getBestMoves();
-      return this.displayBoard.showMoveSequence(bestMoves[0], bestMoves[1], this.hintMoveIdx);
+      return this.displayBoard.showMoveSequence(bestMoves[0], bestMoves[1], this.hintMoveIdx, false);
     } else {
       return this.exitHintMode();
     }
@@ -136,7 +136,7 @@ KingsGame = (function() {
     if (bestMoves[0].length > 0) {
       this.hintMoveIdx = 0;
       jQuery('.game-button-play-hint').css('visibility', 'visible');
-      return this.displayBoard.showMoveSequence(bestMoves[0], bestMoves[1], this.hintMoveIdx);
+      return this.displayBoard.showMoveSequence(bestMoves[0], bestMoves[1], this.hintMoveIdx, false);
     }
   };
 
@@ -158,7 +158,7 @@ KingsGame = (function() {
       this.exitHintMode();
       return;
     }
-    return this.displayBoard.showMoveSequence(bestMoves[0], bestMoves[1], this.hintMoveIdx);
+    return this.displayBoard.showMoveSequence(bestMoves[0], bestMoves[1], this.hintMoveIdx, false);
   };
 
   KingsGame.prototype.exitHintMode = function() {

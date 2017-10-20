@@ -74,7 +74,7 @@ class KingsGame
 		@displayBoard.showGameState(@gameBoard)
 		if @hintMoveIdx >= 0
 			bestMoves = @gameSearch.getBestMoves()
-			@displayBoard.showMoveSequence(bestMoves[0], bestMoves[1], @hintMoveIdx)
+			@displayBoard.showMoveSequence(bestMoves[0], bestMoves[1], @hintMoveIdx, false)
 
 	undoMove: () =>
 		@displayBoard.hidePick2()
@@ -87,7 +87,7 @@ class KingsGame
 		if @hintMoveIdx > 0
 			@hintMoveIdx--
 			bestMoves = @gameSearch.getBestMoves()
-			@displayBoard.showMoveSequence(bestMoves[0], bestMoves[1], @hintMoveIdx)
+			@displayBoard.showMoveSequence(bestMoves[0], bestMoves[1], @hintMoveIdx, false)
 		else
 			@exitHintMode()
 
@@ -106,7 +106,7 @@ class KingsGame
 		if bestMoves[0].length > 0
 			@hintMoveIdx = 0
 			jQuery('.game-button-play-hint').css('visibility', 'visible')
-			@displayBoard.showMoveSequence(bestMoves[0], bestMoves[1], @hintMoveIdx)
+			@displayBoard.showMoveSequence(bestMoves[0], bestMoves[1], @hintMoveIdx, false)
 
 	playHint: () =>
 		# Check we're in hint mode
@@ -126,7 +126,7 @@ class KingsGame
 		if @hintMoveIdx >= bestMoves[0].length
 			@exitHintMode()
 			return
-		@displayBoard.showMoveSequence(bestMoves[0], bestMoves[1], @hintMoveIdx)
+		@displayBoard.showMoveSequence(bestMoves[0], bestMoves[1], @hintMoveIdx, false)
 
 	exitHintMode: () =>
 		@hintMoveIdx = -1

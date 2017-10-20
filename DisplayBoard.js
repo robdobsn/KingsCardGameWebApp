@@ -4,7 +4,6 @@ var DisplayBoard,
 
 DisplayBoard = (function() {
   function DisplayBoard(playingCards, dragCallback, clickCallback, resizeHandler, basePath, selectorForPage) {
-    var i, j, numColrs, ref;
     this.playingCards = playingCards;
     this.dragCallback = dragCallback;
     this.clickCallback = clickCallback;
@@ -18,11 +17,17 @@ DisplayBoard = (function() {
     this.registerListeners();
     this.USE_DRAG_AND_DROP = false;
     this.rainbow = [];
-    numColrs = 20;
-    for (i = j = 0, ref = numColrs; 0 <= ref ? j <= ref : j >= ref; i = 0 <= ref ? ++j : --j) {
-      this.rainbow.push("hsl(" + (i * 360 / numColrs) + ",100%,50%)");
-    }
+    this.arrowBaseIdx = 0;
   }
+
+  DisplayBoard.prototype.createArrowColours = function(numColours) {
+    var i, j, ref, results;
+    results = [];
+    for (i = j = 0, ref = numColours; 0 <= ref ? j <= ref : j >= ref; i = 0 <= ref ? ++j : --j) {
+      results.push(this.rainbow.push("hsl(" + (i * 360 / numColours) + ",100%,50%)"));
+    }
+    return results;
+  };
 
   DisplayBoard.prototype.showGameState = function(gameBoard) {
     var cardFileName, cardHeight, cardId, cardWidth, colIdx, displayHeight, displayWidth, j, k, ref, ref1, rowIdx;
@@ -110,17 +115,31 @@ DisplayBoard = (function() {
   };
 
   DisplayBoard.prototype.addArrow = function(fromPos, toPos, moveIdx) {
-    var dString, lineColour, newArrow;
+    var dString, lineColour, newArrow, newMarker, newMarkerPath;
     dString = "M" + fromPos.left + "," + fromPos.top + " " + "L" + toPos.left + "," + toPos.top;
     lineColour = moveIdx < this.rainbow.length ? this.rainbow[moveIdx] : "blue";
     newArrow = jQuery(document.createElementNS("http://www.w3.org/2000/svg", "path")).attr({
       d: dString,
-      style: "stroke:" + lineColour + "; stroke-width: 5px; fill: none; marker-end: url(#arrow-" + lineColour + ")"
+      style: "stroke:" + lineColour + "; stroke-width: 3px; fill: none; marker-end: url(#arrow-" + this.arrowBaseIdx + ")"
     });
-    return jQuery('#arrowOverlay').find("g").append(newArrow);
+    jQuery('#arrowOverlay').find("g").append(newArrow);
+    newMarker = document.createElementNS("http://www.w3.org/2000/svg", "marker");
+    newMarker.setAttribute("id", "arrow-" + this.arrowBaseIdx);
+    newMarker.setAttribute("markerWidth", "10");
+    newMarker.setAttribute("markerHeight", "10");
+    newMarker.setAttribute("refX", "9");
+    newMarker.setAttribute("refY", "6");
+    newMarker.setAttribute("orient", "auto");
+    newMarkerPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    newMarkerPath.setAttribute("fill", "" + lineColour);
+    newMarkerPath.setAttribute("d", "M2,1 L2,10 L10,6 L2,2");
+    newMarker.appendChild(newMarkerPath);
+    jQuery('#arrowOverlay').find("defs").append(newMarker);
+    return this.arrowBaseIdx++;
   };
 
   DisplayBoard.prototype.clearArrows = function() {
+    this.arrowBaseIdx = 0;
     jQuery('#arrowOverlay').find("g").empty();
     return jQuery('.hint-info').css('visibility', 'hidden');
   };
@@ -171,12 +190,13 @@ DisplayBoard = (function() {
     return results;
   };
 
-  DisplayBoard.prototype.showMoveSequence = function(moveSequence, bestMoveInfo, fromMoveIdx) {
+  DisplayBoard.prototype.showMoveSequence = function(moveSequence, bestMoveInfo, fromMoveIdx, isPreview) {
     var arrowArea, cardHeight, cardWidth, fromCentre, j, len, moveIdx, possMove, toCentre;
     arrowArea = this.getSVGAreaSize();
     cardWidth = arrowArea[0] / 13;
     cardHeight = arrowArea[1] / 4;
     this.clearArrows();
+    this.createArrowColours(isPreview ? 30 : moveSequence.length);
     for (moveIdx = j = 0, len = moveSequence.length; j < len; moveIdx = ++j) {
       possMove = moveSequence[moveIdx];
       if (moveIdx < fromMoveIdx) {

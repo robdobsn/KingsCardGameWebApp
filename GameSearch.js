@@ -3,6 +3,8 @@ var GameSearch;
 
 GameSearch = (function() {
   function GameSearch() {
+    this.searchDepthAtLayer = [5];
+    this.maxMovesAtLayer = [100000];
     this.bestFactoredScore = -10000;
     this.bestMoveList = [];
     this.maxRecurseDepth = 12;
@@ -22,14 +24,14 @@ GameSearch = (function() {
   };
 
   GameSearch.prototype.getDynamicTree = function(startBoard, displayBoard) {
-    var bestMove, dynamicBoard, dynamicIncrements, i, j, len, newBoard, newMoveList, newScore, possMove, possMoveIdx, possMoves;
+    var bestMove, dynIdx, dynamicBoard, i, j, len, newBoard, newMoveList, newScore, possMove, possMoveIdx, possMoves;
     this.dynamicMoveList = [];
     this.dynamicFactoredScore = -10000;
-    this.maxRecurseDepth = 15;
-    this.maxMovesToConsider = 2000000;
     dynamicBoard = startBoard.clone();
-    for (dynamicIncrements = i = 0; i <= 100; dynamicIncrements = ++i) {
-      console.log("Dynamic tree " + dynamicIncrements);
+    for (dynIdx = i = 0; i <= 100; dynIdx = ++i) {
+      console.log("Dynamic tree " + dynIdx);
+      this.maxRecurseDepth = this.searchDepthAtLayer.length > dynIdx ? this.searchDepthAtLayer[dynIdx] : this.searchDepthAtLayer[this.searchDepthAtLayer.length - 1];
+      this.maxMovesToConsider = this.maxMovesAtLayer.length > dynIdx ? this.maxMovesAtLayer[dynIdx] : this.maxMovesAtLayer[this.maxMovesAtLayer.length - 1];
       this.bestFactoredScore = -10000;
       this.bestMoveList = [];
       possMoves = this.getPossibleMoves(dynamicBoard);
@@ -54,10 +56,6 @@ GameSearch = (function() {
       this.dynamicMoveList.push(bestMove);
       this.dynamicFactoredScore = this.bestFactoredScore;
       dynamicBoard.moveCardUsingRowAndColInfo(bestMove[0], bestMove[1]);
-      if (this.maxRecurseDepth > 10) {
-        this.maxRecurseDepth--;
-        this.maxMovesToConsider -= 200000;
-      }
       if (displayBoard === !null) {
         displayBoard.showMoveSequence(this.dynamicMoveList, this.dynamicFactoredScore, 0, true);
       }
