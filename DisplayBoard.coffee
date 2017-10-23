@@ -23,7 +23,11 @@ class DisplayBoard
 			jQuery('.game-board').append("<div class='row' id='row#{rowIdx}'></div>")
 			for colIdx in [0..gameBoard.numCols-1]
 				cardId = gameBoard.getCardId(rowIdx, colIdx)
-				cardFileName = @basePath + "cards/" + gameBoard.getCardFileName(rowIdx, colIdx)
+				cardRank = @playingCards.getCardRank(cardId)
+				if cardRank == @playingCards.AceId
+					cardFileName = "cards/card_empty.png"
+				else
+					cardFileName = @basePath + "cards/" + gameBoard.getCardFileName(rowIdx, colIdx)
 				jQuery("#row#{rowIdx}").append("<img id='cardid#{cardId}' class='card' width='#{cardWidth}px' height='#{cardHeight}px' src='#{cardFileName}'></img>")
 		# Show status
 		jQuery('.game-status-box').html("Turn #{gameBoard.turns+1} Score #{gameBoard.getBoardScore()[1]}")

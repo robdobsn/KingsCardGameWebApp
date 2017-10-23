@@ -3,6 +3,7 @@
     <properties>
       <sourceFilesUrls>
         <item url="file://$PROJECT_DIR$/DisplayBoard.js" />
+        <item url="file://$PROJECT_DIR$/GameBoard - Copy.js" />
         <item url="file://$PROJECT_DIR$/GameSearch.js" />
         <item url="file://$PROJECT_DIR$/GameHistory.js" />
         <item url="file://$PROJECT_DIR$/PlayingCards.js" />
@@ -12,6 +13,7 @@
     </properties>
     <CLASSES>
       <root url="file://$PROJECT_DIR$/DisplayBoard.js" />
+      <root url="file://$PROJECT_DIR$/GameBoard - Copy.js" />
       <root url="file://$PROJECT_DIR$/GameSearch.js" />
       <root url="file://$PROJECT_DIR$/GameHistory.js" />
       <root url="file://$PROJECT_DIR$/PlayingCards.js" />

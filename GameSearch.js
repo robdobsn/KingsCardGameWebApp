@@ -13,12 +13,10 @@ GameSearch = (function() {
   }
 
   GameSearch.prototype.getPossibleMoves = function(gameBoard) {
-    var i, len, moveOptions, mtId, ref;
+    var i, moveOptions, mtIdx;
     moveOptions = [];
-    ref = [-1, -2, -3, -4];
-    for (i = 0, len = ref.length; i < len; i++) {
-      mtId = ref[i];
-      moveOptions = moveOptions.concat(gameBoard.getValidMovesForEmptySq(mtId));
+    for (mtIdx = i = 0; i <= 3; mtIdx = ++i) {
+      moveOptions = moveOptions.concat(gameBoard.getValidMovesForEmptySq(mtIdx));
     }
     return moveOptions;
   };

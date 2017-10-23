@@ -24,16 +24,16 @@ class PlayingCards
 		return suitIdx * @cardsInSuit + rankIdx
 
 	getCardInfo: (cardId) ->
-		if cardId < 0
-			cardInfo =
-				suitIdx: 0
-				suitName: "GAP"
-				rankIdx: -cardId
-				rankName: (-cardId).toString()
-				cardFileNamePng: ""
-				cardShortName: "G" + (-cardId).toString()
-				isGap: true
-			return cardInfo
+#		if cardId < 0
+#			cardInfo =
+#				suitIdx: 0
+#				suitName: "GAP"
+#				rankIdx: -cardId
+#				rankName: (-cardId).toString()
+#				cardFileNamePng: ""
+#				cardShortName: "G" + (-cardId).toString()
+#				isGap: true
+#			return cardInfo
 		if cardId > @cardsInDeck-1 then debugger
 		suitIdx = Math.floor (cardId / @cardsInSuit)
 		if suitIdx < 0 or suitIdx >= @suitNames.length then debugger
@@ -46,12 +46,10 @@ class PlayingCards
 			rankName: @rankNames[rankIdx]
 			cardFileNamePng: "card_" + (rankIdx+1) + "_" + suitName + ".png"
 			cardShortName: @shortSuitNames[suitIdx] + @shortRankNames[rankIdx]
-			isGap: false
+#			isGap: false
 		return cardInfo
 
 	getCardFileName: (cardId) ->
-		if cardId < 0
-			return "card_empty.png"
 		return @getCardInfo(cardId).cardFileNamePng
 
 	shuffle: () ->
@@ -86,11 +84,11 @@ class PlayingCards
 		@deck.push cardId
 
 	getCardRank: (cardId) ->
-		if cardId < 0
-			return -1
 		return cardId % @cardsInSuit
 
 	getCardSuit: (cardId) ->
-		if cardId < 0
-			return -1
 		return Math.floor (cardId / @cardsInSuit)
+
+	isAce: (cardId) ->
+		return (cardId % @cardsInSuit) == @AceId
+

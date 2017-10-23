@@ -45,18 +45,6 @@ PlayingCards = (function() {
 
   PlayingCards.prototype.getCardInfo = function(cardId) {
     var cardInfo, rankIdx, suitIdx, suitName;
-    if (cardId < 0) {
-      cardInfo = {
-        suitIdx: 0,
-        suitName: "GAP",
-        rankIdx: -cardId,
-        rankName: (-cardId).toString(),
-        cardFileNamePng: "",
-        cardShortName: "G" + (-cardId).toString(),
-        isGap: true
-      };
-      return cardInfo;
-    }
     if (cardId > this.cardsInDeck - 1) {
       debugger;
     }
@@ -72,16 +60,12 @@ PlayingCards = (function() {
       rankIdx: rankIdx,
       rankName: this.rankNames[rankIdx],
       cardFileNamePng: "card_" + (rankIdx + 1) + "_" + suitName + ".png",
-      cardShortName: this.shortSuitNames[suitIdx] + this.shortRankNames[rankIdx],
-      isGap: false
+      cardShortName: this.shortSuitNames[suitIdx] + this.shortRankNames[rankIdx]
     };
     return cardInfo;
   };
 
   PlayingCards.prototype.getCardFileName = function(cardId) {
-    if (cardId < 0) {
-      return "card_empty.png";
-    }
     return this.getCardInfo(cardId).cardFileNamePng;
   };
 
@@ -124,17 +108,15 @@ PlayingCards = (function() {
   };
 
   PlayingCards.prototype.getCardRank = function(cardId) {
-    if (cardId < 0) {
-      return -1;
-    }
     return cardId % this.cardsInSuit;
   };
 
   PlayingCards.prototype.getCardSuit = function(cardId) {
-    if (cardId < 0) {
-      return -1;
-    }
     return Math.floor(cardId / this.cardsInSuit);
+  };
+
+  PlayingCards.prototype.isAce = function(cardId) {
+    return (cardId % this.cardsInSuit) === this.AceId;
   };
 
   return PlayingCards;

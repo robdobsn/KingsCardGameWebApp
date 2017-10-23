@@ -30,7 +30,7 @@ DisplayBoard = (function() {
   };
 
   DisplayBoard.prototype.showGameState = function(gameBoard) {
-    var cardFileName, cardHeight, cardId, cardWidth, colIdx, displayHeight, displayWidth, j, k, ref, ref1, rowIdx;
+    var cardFileName, cardHeight, cardId, cardRank, cardWidth, colIdx, displayHeight, displayWidth, j, k, ref, ref1, rowIdx;
     displayWidth = jQuery(this.selectorForPage).width();
     displayHeight = jQuery(this.selectorForPage).height();
     cardWidth = displayWidth / gameBoard.numCols;
@@ -40,7 +40,12 @@ DisplayBoard = (function() {
       jQuery('.game-board').append("<div class='row' id='row" + rowIdx + "'></div>");
       for (colIdx = k = 0, ref1 = gameBoard.numCols - 1; 0 <= ref1 ? k <= ref1 : k >= ref1; colIdx = 0 <= ref1 ? ++k : --k) {
         cardId = gameBoard.getCardId(rowIdx, colIdx);
-        cardFileName = this.basePath + "cards/" + gameBoard.getCardFileName(rowIdx, colIdx);
+        cardRank = this.playingCards.getCardRank(cardId);
+        if (cardRank === this.playingCards.AceId) {
+          cardFileName = "cards/card_empty.png";
+        } else {
+          cardFileName = this.basePath + "cards/" + gameBoard.getCardFileName(rowIdx, colIdx);
+        }
         jQuery("#row" + rowIdx).append("<img id='cardid" + cardId + "' class='card' width='" + cardWidth + "px' height='" + cardHeight + "px' src='" + cardFileName + "'></img>");
       }
     }

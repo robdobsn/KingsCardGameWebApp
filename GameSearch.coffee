@@ -1,8 +1,8 @@
 class GameSearch
 
   constructor: () ->
-    @searchDepthAtLayer = [5] #[13,12,12,11,11,11,11,11,10]
-    @maxMovesAtLayer = [100000] #[1000000,500000,500000,250000]
+    @searchDepthAtLayer = [5] # [13,12,12,11,11,11,11,11,10,9,8,7]
+    @maxMovesAtLayer = [100000] # [1000000,500000,500000,250000,100000]
     @bestFactoredScore = -10000
     @bestMoveList = []
     @maxRecurseDepth = 12
@@ -12,8 +12,8 @@ class GameSearch
   getPossibleMoves: (gameBoard) ->
 #    gameBoard.debugDump("Debug")
     moveOptions = []
-    for mtId in [-1,-2,-3,-4]
-      moveOptions = moveOptions.concat gameBoard.getValidMovesForEmptySq(mtId)
+    for mtIdx in [0..3]
+      moveOptions = moveOptions.concat gameBoard.getValidMovesForEmptySq(mtIdx)
 #    console.log moveOptions
     return moveOptions
 
