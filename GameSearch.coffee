@@ -1,8 +1,8 @@
 class GameSearch
 
   constructor: () ->
-    @searchDepthAtLayer = [12] # [13,12,12,11,11,11,11,11,10,9,8,7]
-    @maxMovesAtLayer = [100000] # [1000000,500000,500000,250000,100000]
+    @searchDepthAtLayer = [13,12,12,11,11,11,11,11,10,9,8,7]
+    @maxMovesAtLayer = [500000,500000,500000,250000,100000]
     @bestFactoredScore = -10000
     @bestMoveList = []
     @maxRecurseDepth = 12

@@ -3,8 +3,8 @@ var GameSearch;
 
 GameSearch = (function() {
   function GameSearch() {
-    this.searchDepthAtLayer = [20, 14, 13, 12, 12, 11, 11, 11, 11, 11, 10, 9, 8, 7];
-    this.maxMovesAtLayer = [10000000, 1000000, 1000000, 1000000, 500000, 500000, 250000, 100000];
+    this.searchDepthAtLayer = [13, 12, 12, 11, 11, 11, 11, 11, 10, 9, 8, 7];
+    this.maxMovesAtLayer = [500000, 500000, 500000, 250000, 100000];
     this.bestFactoredScore = -10000;
     this.bestMoveList = [];
     this.maxRecurseDepth = 12;

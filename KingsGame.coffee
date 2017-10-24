@@ -79,16 +79,16 @@ class KingsGame
 			toCardId = @gameBoard.getCardId(@move2ToCell[0], @move2ToCell[1])
 			[moveResult, fromRow, fromCol, toRow, toCol] = @gameBoard.moveCardIfValid(clickedCardId, toCardId)
 			if moveResult == "ok"
+				@displayBoard.hidePick2()
 				@displayBoard.showGameState(@gameBoard)
 				@gameHistory.addToHistory(@gameBoard)
-				@displayBoard.hidePick2()
 				return
 		# console.log "clicked", clickedCardId
 		[moveResult, fromRow, fromCol, toRow, toCol] = @gameBoard.moveValidCardToEmptyPlace(clickedCardId)
 		if moveResult == "ok"
+			@displayBoard.hidePick2()
 			@displayBoard.showGameState(@gameBoard)
 			@gameHistory.addToHistory(@gameBoard)
-			@displayBoard.hidePick2()
 		else if moveResult == "select2"
 			# display banner asking user to click on a 2
 			@displayBoard.showPick2()
@@ -160,9 +160,9 @@ class KingsGame
 		# Make the move
 		[moveResult, fromRow, fromCol, toRow, toCol] = @gameBoard.moveCardUsingRowAndColInfo(moveToPlay[0], moveToPlay[1])
 		if moveResult == "ok"
+			@displayBoard.hidePick2()
 			@displayBoard.showGameState(@gameBoard)
 			@gameHistory.addToHistory(@gameBoard)
-			@displayBoard.hidePick2()
 		# Next hint move
 		@hintMoveIdx++
 		if @hintMoveIdx >= bestMoves[0].length

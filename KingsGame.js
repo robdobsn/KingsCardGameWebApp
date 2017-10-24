@@ -106,17 +106,17 @@ KingsGame = (function() {
       toCardId = this.gameBoard.getCardId(this.move2ToCell[0], this.move2ToCell[1]);
       ref = this.gameBoard.moveCardIfValid(clickedCardId, toCardId), moveResult = ref[0], fromRow = ref[1], fromCol = ref[2], toRow = ref[3], toCol = ref[4];
       if (moveResult === "ok") {
+        this.displayBoard.hidePick2();
         this.displayBoard.showGameState(this.gameBoard);
         this.gameHistory.addToHistory(this.gameBoard);
-        this.displayBoard.hidePick2();
         return;
       }
     }
     ref1 = this.gameBoard.moveValidCardToEmptyPlace(clickedCardId), moveResult = ref1[0], fromRow = ref1[1], fromCol = ref1[2], toRow = ref1[3], toCol = ref1[4];
     if (moveResult === "ok") {
+      this.displayBoard.hidePick2();
       this.displayBoard.showGameState(this.gameBoard);
       this.gameHistory.addToHistory(this.gameBoard);
-      this.displayBoard.hidePick2();
     } else if (moveResult === "select2") {
       this.displayBoard.showPick2();
       this.move2ToCell = [toRow, toCol];
@@ -202,9 +202,9 @@ KingsGame = (function() {
     moveToPlay = bestMoves[0][this.hintMoveIdx];
     ref = this.gameBoard.moveCardUsingRowAndColInfo(moveToPlay[0], moveToPlay[1]), moveResult = ref[0], fromRow = ref[1], fromCol = ref[2], toRow = ref[3], toCol = ref[4];
     if (moveResult === "ok") {
+      this.displayBoard.hidePick2();
       this.displayBoard.showGameState(this.gameBoard);
       this.gameHistory.addToHistory(this.gameBoard);
-      this.displayBoard.hidePick2();
     }
     this.hintMoveIdx++;
     if (this.hintMoveIdx >= bestMoves[0].length) {

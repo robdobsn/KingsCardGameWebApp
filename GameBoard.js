@@ -114,6 +114,7 @@ GameBoard = (function() {
       }
     }
     deck = new PlayingCards(false, false);
+    deck.empty();
     for (rowIdx = l = 0, ref2 = this.numRows - 1; 0 <= ref2 ? l <= ref2 : l >= ref2; rowIdx = 0 <= ref2 ? ++l : --l) {
       for (colIdx = m = ref3 = colsToRedealFrom[rowIdx], ref4 = this.numCols - 1; ref3 <= ref4 ? m <= ref4 : m >= ref4; colIdx = ref3 <= ref4 ? ++m : --m) {
         cardId = this.board[rowIdx * this.numCols + colIdx];

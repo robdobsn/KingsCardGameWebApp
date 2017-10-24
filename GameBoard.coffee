@@ -94,7 +94,7 @@ class GameBoard
 #			console.log colsToRedealFrom[colsToRedealFrom.length-1]
 		# Create deck from remaining cards
 		deck = new PlayingCards(false, false)
-#		deck.empty()
+		deck.empty()
 		for rowIdx in [0..@numRows-1]
 			for colIdx in [colsToRedealFrom[rowIdx]..@numCols-1]
 				cardId = @board[rowIdx*@numCols+colIdx]

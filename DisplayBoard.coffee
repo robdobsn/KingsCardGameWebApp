@@ -13,10 +13,11 @@ class DisplayBoard
 
 	showGameState: (gameBoard) ->
 		# Calculate playing area dimensions
-		displayWidth = jQuery(@selectorForPage).width() 
+		displayWidth = jQuery(@selectorForPage).width() - 20
 		displayHeight = jQuery(@selectorForPage).height()
 		cardWidth = displayWidth / gameBoard.numCols
 		cardHeight = cardWidth * 1.545
+		console.log("Width " + displayWidth + " height " + displayHeight + " cardWidth " + cardWidth + " cardHeight " + cardHeight)
 		# Clear the display area
 		jQuery('.game-board').html("")
 		# Show the cards
@@ -30,6 +31,9 @@ class DisplayBoard
 				else
 					cardFileName = @basePath + "cards/" + gameBoard.getCardFileName(rowIdx, colIdx)
 				jQuery("#row#{rowIdx}").append("<img id='cardid#{cardId}' class='card' width='#{cardWidth}px' height='#{cardHeight}px' src='#{cardFileName}'></img>")
+		# Display banner if required
+		if @isPick2()
+			@showPick2()
 		# Show status
 		jQuery('.game-status-box').html("Turn #{gameBoard.turns+1} Score #{gameBoard.getScore()}")
 		jQuery('.game-number-box').html("Game# #{gameBoard.gameSeed}")
@@ -62,7 +66,6 @@ class DisplayBoard
 
 	registerListeners: ->
 		jQuery(window).resize @resizeHandler
-		return
 		document.addEventListener "mousemove", @onMousemove, (false)
 		document.addEventListener "mousedown", @onMousedown, (false)
 		document.addEventListener "mouseup", @onMouseup, (false)
@@ -81,9 +84,12 @@ class DisplayBoard
 		@clickCallback(@getIdNumFromIdAttr(jQuery(event.target)))
 
 	showPick2: () ->
-		pickPos = jQuery(@selectorForPage).height() + 100
-		console.log "{top:#{pickPos/2}px}"
-		jQuery(".click-on-two").css('top',"#{-pickPos/2}px")
+		pickY = jQuery(@selectorForPage).height() - 100
+		pickX = jQuery(@selectorForPage).width()
+		console.log "{top:#{pickY/2}px; left:#{pickX/2}px"
+		jQuery(".click-on-two").css('top',"#{pickY/2}px")
+		jQuery(".click-on-two").css('left',"#{pickX/4}px")
+		jQuery(".click-on-two").css('width',"#{pickX/2}px")
 		jQuery(".click-on-two").show()
 
 	hidePick2: () ->

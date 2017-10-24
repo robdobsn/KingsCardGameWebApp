@@ -31,10 +31,11 @@ DisplayBoard = (function() {
 
   DisplayBoard.prototype.showGameState = function(gameBoard) {
     var cardFileName, cardHeight, cardId, cardRank, cardWidth, colIdx, displayHeight, displayWidth, j, k, ref, ref1, rowIdx;
-    displayWidth = jQuery(this.selectorForPage).width();
+    displayWidth = jQuery(this.selectorForPage).width() - 20;
     displayHeight = jQuery(this.selectorForPage).height();
     cardWidth = displayWidth / gameBoard.numCols;
     cardHeight = cardWidth * 1.545;
+    console.log("Width " + displayWidth + " height " + displayHeight + " cardWidth " + cardWidth + " cardHeight " + cardHeight);
     jQuery('.game-board').html("");
     for (rowIdx = j = 0, ref = gameBoard.numRows - 1; 0 <= ref ? j <= ref : j >= ref; rowIdx = 0 <= ref ? ++j : --j) {
       jQuery('.game-board').append("<div class='row' id='row" + rowIdx + "'></div>");
@@ -48,6 +49,9 @@ DisplayBoard = (function() {
         }
         jQuery("#row" + rowIdx).append("<img id='cardid" + cardId + "' class='card' width='" + cardWidth + "px' height='" + cardHeight + "px' src='" + cardFileName + "'></img>");
       }
+    }
+    if (this.isPick2()) {
+      this.showPick2();
     }
     jQuery('.game-status-box').html("Turn " + (gameBoard.turns + 1) + " Score " + (gameBoard.getScore()));
     jQuery('.game-number-box').html("Game# " + gameBoard.gameSeed);
@@ -82,7 +86,6 @@ DisplayBoard = (function() {
 
   DisplayBoard.prototype.registerListeners = function() {
     jQuery(window).resize(this.resizeHandler);
-    return;
     document.addEventListener("mousemove", this.onMousemove, false);
     document.addEventListener("mousedown", this.onMousedown, false);
     return document.addEventListener("mouseup", this.onMouseup, false);
@@ -105,10 +108,13 @@ DisplayBoard = (function() {
   };
 
   DisplayBoard.prototype.showPick2 = function() {
-    var pickPos;
-    pickPos = jQuery(this.selectorForPage).height() + 100;
-    console.log("{top:" + (pickPos / 2) + "px}");
-    jQuery(".click-on-two").css('top', (-pickPos / 2) + "px");
+    var pickX, pickY;
+    pickY = jQuery(this.selectorForPage).height() - 100;
+    pickX = jQuery(this.selectorForPage).width();
+    console.log("{top:" + (pickY / 2) + "px; left:" + (pickX / 2) + "px");
+    jQuery(".click-on-two").css('top', (pickY / 2) + "px");
+    jQuery(".click-on-two").css('left', (pickX / 4) + "px");
+    jQuery(".click-on-two").css('width', (pickX / 2) + "px");
     return jQuery(".click-on-two").show();
   };
 
