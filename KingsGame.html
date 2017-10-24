@@ -11,6 +11,7 @@
     {
       background-color: rgb(38, 38, 38);
       color: white;
+      user-select: none;
     }
 
     canvas 
@@ -28,6 +29,8 @@
       margin-left: auto;
       margin-right: auto;
       width: 50%;
+      clear: both;
+      display: none;
     }
     .click-on-two div
     {
@@ -35,6 +38,7 @@
       height: 60px;
       display: table-cell;
       width: 200em;
+      font-size: 1.5em;
     }
     .click-on-two div span
     {
@@ -47,24 +51,32 @@
     .game-buttons
     {
       float: left;
+      margin-left: 20px;
       margin-right: 20px;
     }
     .game-status
     {
       float:left;
-      margin-right: 20px;
-    }
-    .hint-info
-    {
-      float:left;
-      margin-right: 20px;
     }
     .game-status-box
     {
       padding: .4em 1em;
       color: blue;
     }
+    .hint-info
+    {
+      float:left;
+    }
     .hint-info-box
+    {
+      padding: .4em 1em;
+      color: blue;
+    }
+    .game-number
+    {
+      float:left;
+    }
+    .game-number-box
     {
       padding: .4em 1em;
       color: blue;
@@ -75,10 +87,17 @@
       top:0px;
       left:0px;
     }
+    .game-fixed-buttons
+    {
+      float: left;
+      margin-left:5px;
+      margin-right:5px;
+    }
   </style>
   <script type="text/javascript" src="libs/jquery-1.11.1.min.js"></script>
   <script type="text/javascript" src="libs/jquery-ui.min.js"></script>
   <script type="text/javascript" src="KingsGame.js"></script>
+  <script type="text/javascript" src="PseudoRandom.js"></script>
   <script type="text/javascript" src="PlayingCards.js"></script>
   <script type="text/javascript" src="GameBoard.js"></script>
   <script type="text/javascript" src="DisplayBoard.js"></script>
@@ -114,6 +133,21 @@
   <div class="hint-info ui-widget ui-widget-content ui-corner-all">
     <div class="hint-info-box"></div>
   </div>
-  <div class="click-on-two"><div><span>Click on the 2 to move</span></div></div>
+  <div class="game-buttons">
+    <div class="game-button-fixed-random">Fixed</div>
+  </div>
+  <div class="game-fixed-buttons">
+    <div class="game-button-fixed-minus" style="display: none">-</div>
+  </div>
+  <div class="game-number ui-widget ui-widget-content ui-corner-all">
+    <div class="game-number-box"></div>
+  </div>
+  <div class="game-fixed-buttons">
+    <div class="game-button-fixed-plus" style="display: none">+</div>
+  </div>
+  <div class="game-buttons">
+    <div class="game-button-new-game">New Game</div>
+  </div>
+  <div class="click-on-two"><div class="ui-widget"><span>Click on the 2 to move</span></div></div>
 </body>
 </html>

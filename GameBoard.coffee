@@ -3,36 +3,71 @@ class GameBoard
 	numCols: 13
 	gapCards: [0,13,26,39]
 
-	constructor: (@playingCards) ->
+	constructor: () ->
+		# Deck of cards - initially empty
+		@playingCards = new PlayingCards(false, false)
+		# Container for cards - linear array with each row concatenated
 		@board = []
+		# Reverse lookup
 		@cardLookup = []
+		# Number of turns
 		@turns = 0
+		# Score
+		@rowScores = [0,0,0,0]
 		@score = 0
+		# Game seed - allows for repeatable games based on seed numbers -
+		# or "random" if a random 32 bit number is used as seed
+		@gameSeed = 0
 
 	clone: () ->
-		newBoard = new GameBoard(@playingCards)
+		newBoard = new GameBoard()
 		newBoard.board = @board.slice(0)
 		newBoard.cardLookup = @cardLookup.slice(0)
 		newBoard.turns = @turns
+		newBoard.rowScores = @rowScores.slice(0)
 		newBoard.score = @score
+		newBoard.gameSeed = @gameSeed
 		return newBoard
 
 	copy: (copyFrom) ->
 		@board = copyFrom.board.slice(0)
 		@cardLookup = copyFrom.cardLookup.slice(0)
 		@turns = copyFrom.turns
+		@rowScores = copyFrom.rowScores.slice(0)
 		@score = copyFrom.score
+		@gameSeed = copyFrom.gameSeed
 		return true
+
+	setFixedSeed: (gameNumber) ->
+		@gameSeed = gameNumber
+
+	setRandomSeed: () ->
+		@gameSeed = 0
+
+	decrementSeed: () ->
+		@gameSeed = @gameSeed - 1
+		if @gameSeed <= 0
+			@gameSeed = 1
+
+	incrementSeed: () ->
+		@gameSeed = @gameSeed + 1
+		if @gameSeed > @playingCards.maxSeed()
+			@gameSeed = @playingCards.maxSeed()
 
 	deal: () ->
 		@board = []
 		@cardLookup = (0 for n in [0..@playingCards.cardsInDeck-1])
+		@playingCards.createUnsorted()
+		if @gameSeed == 0
+			@gameSeed = @playingCards.getPseudoRandomSeed()
+		@playingCards.shuffle(@gameSeed)
 		@playingCards.startDeal()
 		for idx in [0..@playingCards.cardsInDeck-1]
 			cardId = @playingCards.getNextCard()
 			@board.push cardId
 			@cardLookup[cardId] = idx
-		@score = @getScore()
+		# Recalculate the score
+		@recalculateScore()
 		return true
 
 	isGap: (cardId) =>
@@ -41,13 +76,7 @@ class GameBoard
 	removeAces: () ->
 		# Just use the ace values as markers of gaps
 		return
-#		gapCardId = -1
-#		for idx in [0..@playingCards.cardsInDeck-1]
-#			cardId = @board[idx]
-#			if @playingCards.getCardInfo(cardId).rankIdx == @playingCards.AceId
-#				@board[idx] = gapCardId
-#				gapCardId -= 1
-	
+
 	redeal: () ->
 		# Leave any cards at start of row which are in their correct places
 		colsToRedealFrom = []
@@ -64,14 +93,14 @@ class GameBoard
 					break
 #			console.log colsToRedealFrom[colsToRedealFrom.length-1]
 		# Create deck from remaining cards
-		deck = new PlayingCards()
-		deck.empty()
+		deck = new PlayingCards(false, false)
+#		deck.empty()
 		for rowIdx in [0..@numRows-1]
 			for colIdx in [colsToRedealFrom[rowIdx]..@numCols-1]
 				cardId = @board[rowIdx*@numCols+colIdx]
 				if not @isGap(cardId)
 					deck.addCard(cardId)
-		deck.shuffle()
+		deck.shuffle(@gameSeed)
 		# Redeal
 		deck.startDeal()
 		for rowIdx in [0..@numRows-1]
@@ -86,7 +115,8 @@ class GameBoard
 						@board[boardLocnIdx] = cardId
 						@cardLookup[cardId] = boardLocnIdx
 		@turns += 1
-		@score = @getScore()
+		# Recalculate the score
+		@recalculateScore()
 		return true
 
 	getCardId: (rowIdx, colIdx) ->
@@ -105,30 +135,12 @@ class GameBoard
 			return [-1, rowIdx, colIdx,0,0]
 		return [@board[rowIdx*@numCols+colIdx-1],rowIdx,colIdx,rowIdx,colIdx-1]
 
-#	getCardToLeftInfo: (cardId) ->
-#		for rowIdx in [0..@numRows-1]
-#			for colIdx in [0..@numCols-1]
-#				chkCardId = @board[rowIdx*@numCols+colIdx]
-#				if chkCardId == cardId
-#					if colIdx == 0
-#						return [-1, rowIdx, colIdx,0,0]
-#					return [@board[rowIdx*@numCols+colIdx-1],rowIdx,colIdx,rowIdx,colIdx-1]
-#		return [-2,0,0,0,0]
-
 	getLocnOfCard: (cardId) ->
 		if cardId < 0 or cardId >= @cardLookup.length then debugger
 		cardLocn = @cardLookup[cardId]
 		rowIdx = Math.floor(cardLocn / @numCols)
 		colIdx = cardLocn % @numCols
 		return [true, rowIdx, colIdx]
-
-#	getLocnOfCard: (cardId) ->
-#		for rowIdx in [0..@numRows-1]
-#			for colIdx in [0..@numCols-1]
-#				chkCardId = @board[rowIdx*@numCols+colIdx]
-#				if chkCardId == cardId
-#					return [true, rowIdx, colIdx]
-#		return [false, 0, 0]
 
 	getEmptySquares: () ->
 		emptySqList = []
@@ -138,15 +150,6 @@ class GameBoard
 			colIdx = cardLocn % @numCols
 			emptySqList.push [rowIdx, colIdx]
 		return emptySqList
-
-#	getEmptySquares: () ->
-#		emptySqList = []
-#		for rowIdx in [0..@numRows-1]
-#			for colIdx in [0..@numCols-1]
-#				chkCardId = @board[rowIdx*@numCols+colIdx]
-#				if @isGap(chkCardId)
-#					emptySqList.push [rowIdx, colIdx]
-#		return emptySqList
 
 	getValidMovesForEmptySq: (mtIdx) ->
 		validMoves = []
@@ -201,6 +204,28 @@ class GameBoard
 				return @moveCard(fromCardId, toCardId)
 		return ["none",0,0,0,0]
 
+	updateScore: (cardId, fromRowIdx, fromColIdx, gapId, toRowIdx, toColIdx) ->
+		# This code relies on the fact that cards are sequentially numbered in each suit
+		# and the board array is sequentially indexed for cards in each row
+		toBoardPos = toRowIdx*@numCols+toColIdx
+		testCardId = cardId
+		for col in [toColIdx..@numCols-1]
+			if @rowScores[toRowIdx] == col and @board[toBoardPos] == testCardId
+				@rowScores[toRowIdx]++
+				@score++
+				testCardId++
+				toBoardPos++
+			else
+				break
+#		# Cross check
+#		ckRowScores = @rowScores.slice(0)
+#		ckScore = @score
+#		@recalculateScore()
+#		if @score != ckScore then debugger
+#		for rowScore, i in @rowScores
+#			if ckRowScores[i] != rowScore then debugger
+
+
 	moveCard: (fromCardId, toCardId) ->
 		[ok, fromRowIdx, fromColIdx] = @getLocnOfCard(fromCardId)
 		if ok 
@@ -216,6 +241,7 @@ class GameBoard
 				@cardLookup[gapId] = cardLocnIdx
 #				@debugDump ""
 #				@checkValidity()
+				@updateScore(cardId, fromRowIdx, fromColIdx, gapId, toRowIdx, toColIdx)
 				return [ "ok", fromRowIdx, fromColIdx, toRowIdx, toColIdx ]
 		return ["none",0,0,0,0]
 
@@ -228,6 +254,7 @@ class GameBoard
 		@board[cardLocnIdx] = gapId
 		@cardLookup[cardId] = gapLocnIdx
 		@cardLookup[gapId] = cardLocnIdx
+		@updateScore(cardId, fromRowCol[0], fromRowCol[1], gapId, toRowCol[0], toRowCol[1])
 		return [ "ok", fromRowCol[0], fromRowCol[1], toRowCol[0], toRowCol[1] ]
 
 	getCardName: (cardId) ->
@@ -236,72 +263,35 @@ class GameBoard
 				return "GP"
 			return cardInfo.cardShortName
 
-#	getBoardScore: () ->
-#		# Cards in sequence
-#		rawScore = 0
-#		completeRows = 0
-#		for row in [0..@numRows-1]
-#			rowSuit = -1
-#			for col in [0..@numCols-1]
-#				cardId = @getCardId(row,col)
-#				if col == 0
-#					if @playingCards.getCardRank(cardId) == @playingCards.TwoId
-#						rowSuit = @playingCards.getCardSuit(cardId)
-#						rawScore++
-#					else
-#						break
-#				else
-#					if @playingCards.getCardRank(cardId) == col+1 and @playingCards.getCardSuit(cardId) == rowSuit
-#						rawScore++
-#						if col == @numCols-1
-#							completeRows++
-#					else
-#						break
-#		# Spaces behind king
-#		kingSpaces = 0
-#		kingLastColumns = 0
-#		for row in [0..@numRows-1]
-#			lastCardWasKing = false
-#			for col in [0..@numCols-1]
-#				cardId = @getCardId(row,col)
-#				if @playingCards.getCardRank(cardId) == @playingCards.KingId
-#					if col == @numCols-1
-#						kingLastColumns++
-#					else
-#						lastCardWasKing = true
-#				else
-#					if @playingCards.getCardRank(cardId) == @playingCards.AceId and lastCardWasKing
-#						kingSpaces++
-#					lastCardWasKing = false
-#		# Compute factored score
-#		if completeRows == 4
-#			factoredScore = 100
-#		else
-#			factoredScore = rawScore - kingSpaces + kingLastColumns + completeRows*5
-#		return [factoredScore, rawScore]
-
-	getScore: () ->
+	recalculateScore: () ->
 		# Cards in sequence
-		rawScore = 0
+		fullScore = 0
 		completeRows = 0
 		for row in [0..@numRows-1]
+			rowScore = 0
 			rowSuit = -1
 			for col in [0..@numCols-1]
 				cardId = @getCardId(row,col)
 				if col == 0
 					if @playingCards.getCardRank(cardId) == @playingCards.TwoId
 						rowSuit = @playingCards.getCardSuit(cardId)
-						rawScore++
+						rowScore++
 					else
 						break
 				else
 					if @playingCards.getCardRank(cardId) == col+1 and @playingCards.getCardSuit(cardId) == rowSuit
-						rawScore++
+						rowScore++
 						if col == @numCols-1
 							completeRows++
 					else
 						break
-		return rawScore
+			@rowScores[row] = rowScore
+			fullScore += rowScore
+		@score = fullScore
+		return fullScore
+
+	getScore: () ->
+		return @score
 
 	debugDump: (debugStr) ->
 		console.log debugStr

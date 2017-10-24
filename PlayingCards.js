@@ -24,19 +24,40 @@ PlayingCards = (function() {
 
   PlayingCards.prototype.deck = [];
 
-  function PlayingCards() {
-    this.deck = this.createUnsorted();
-    this.shuffle();
+  function PlayingCards(create, shuffle) {
+    if (create == null) {
+      create = true;
+    }
+    if (shuffle == null) {
+      shuffle = true;
+    }
+    if (create) {
+      this.createUnsorted();
+    }
+    if (shuffle) {
+      this.shuffle();
+    }
   }
 
+  PlayingCards.prototype.getPseudoRandomSeed = function() {
+    var pseudoRandom;
+    pseudoRandom = new PseudoRandom(0);
+    return pseudoRandom.getRandomSeed();
+  };
+
+  PlayingCards.prototype.maxSeed = function() {
+    var pseudoRandom;
+    pseudoRandom = new PseudoRandom(0);
+    return pseudoRandom.getMaxSeed();
+  };
+
   PlayingCards.prototype.createUnsorted = function() {
-    var deck, k, ref, results;
-    deck = (function() {
+    var k, ref, results;
+    return this.deck = (function() {
       results = [];
       for (var k = 0, ref = this.cardsInDeck - 1; 0 <= ref ? k <= ref : k >= ref; 0 <= ref ? k++ : k--){ results.push(k); }
       return results;
     }).apply(this);
-    return deck;
   };
 
   PlayingCards.prototype.getCardId = function(suitIdx, rankIdx) {
@@ -69,10 +90,14 @@ PlayingCards = (function() {
     return this.getCardInfo(cardId).cardFileNamePng;
   };
 
-  PlayingCards.prototype.shuffle = function() {
-    var i, j, k, ref, ref1;
+  PlayingCards.prototype.shuffle = function(randomSeed) {
+    var i, j, k, pseudoRandom, ref, ref1;
+    if (randomSeed == null) {
+      randomSeed = 0;
+    }
+    pseudoRandom = new PseudoRandom(randomSeed);
     for (i = k = ref = this.deck.length - 1; ref <= 1 ? k <= 1 : k >= 1; i = ref <= 1 ? ++k : --k) {
-      j = Math.floor(Math.random() * (i + 1));
+      j = Math.floor(pseudoRandom.nextFloat() * (i + 1));
       ref1 = [this.deck[j], this.deck[i]], this.deck[i] = ref1[0], this.deck[j] = ref1[1];
     }
     return true;

@@ -11,29 +11,28 @@ class PlayingCards
 	KingId: 12
 	deck: []
 
-	constructor: () ->
-		@deck = @createUnsorted()
-		@shuffle()
+	constructor: (create=true, shuffle=true) ->
+		if create
+			@createUnsorted()
+		if shuffle
+			@shuffle()
 		# console.log @getCardInfo(cardIdx).cardFileNamePng for cardIdx in @deck
 
+	getPseudoRandomSeed: () ->
+		pseudoRandom = new PseudoRandom(0)
+		return pseudoRandom.getRandomSeed()
+
+	maxSeed: () ->
+		pseudoRandom = new PseudoRandom(0)
+		return pseudoRandom.getMaxSeed()
+
 	createUnsorted: () ->
-		deck = [0..@cardsInDeck-1]
-		return deck
+		@deck = [0..@cardsInDeck-1]
 
 	getCardId: (suitIdx, rankIdx) ->
 		return suitIdx * @cardsInSuit + rankIdx
 
 	getCardInfo: (cardId) ->
-#		if cardId < 0
-#			cardInfo =
-#				suitIdx: 0
-#				suitName: "GAP"
-#				rankIdx: -cardId
-#				rankName: (-cardId).toString()
-#				cardFileNamePng: ""
-#				cardShortName: "G" + (-cardId).toString()
-#				isGap: true
-#			return cardInfo
 		if cardId > @cardsInDeck-1 then debugger
 		suitIdx = Math.floor (cardId / @cardsInSuit)
 		if suitIdx < 0 or suitIdx >= @suitNames.length then debugger
@@ -46,17 +45,18 @@ class PlayingCards
 			rankName: @rankNames[rankIdx]
 			cardFileNamePng: "card_" + (rankIdx+1) + "_" + suitName + ".png"
 			cardShortName: @shortSuitNames[suitIdx] + @shortRankNames[rankIdx]
-#			isGap: false
 		return cardInfo
 
 	getCardFileName: (cardId) ->
 		return @getCardInfo(cardId).cardFileNamePng
 
-	shuffle: () ->
+	shuffle: (randomSeed = 0) ->
 		# From the end of the list to the beginning, pick element `i`.
+		pseudoRandom = new PseudoRandom(randomSeed)
 		for i in [@deck.length-1..1]
 			# Choose random element `j` to the front of `i` to swap with.
-			j = Math.floor Math.random() * (i + 1)
+			#j = Math.floor pseudoRandom.next() * (i + 1)
+			j = Math.floor pseudoRandom.nextFloat() * (i + 1)
 			# Swap `j` with `i`, using destructured assignment
 			[@deck[i], @deck[j]] = [@deck[j], @deck[i]]
 			# Return the shuffled array.

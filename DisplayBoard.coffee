@@ -1,10 +1,11 @@
 class DisplayBoard
 
-	constructor: (@playingCards, @dragCallback, @clickCallback, @resizeHandler, @basePath, @selectorForPage) ->
+	constructor: (@dragCallback, @clickCallback, @resizeHandler, @basePath, @selectorForPage) ->
 		@registerListeners()
 		@USE_DRAG_AND_DROP = false
 		@rainbow = []
 		@arrowBaseIdx = 0
+		@playingCards = new PlayingCards(false, false)
 
 	createArrowColours: (numColours) ->
 		for i in [0..numColours]
@@ -31,6 +32,7 @@ class DisplayBoard
 				jQuery("#row#{rowIdx}").append("<img id='cardid#{cardId}' class='card' width='#{cardWidth}px' height='#{cardHeight}px' src='#{cardFileName}'></img>")
 		# Show status
 		jQuery('.game-status-box').html("Turn #{gameBoard.turns+1} Score #{gameBoard.getScore()}")
+		jQuery('.game-number-box').html("Game# #{gameBoard.gameSeed}")
 #		console.log "Score " + gameBoard.getScore()
 		# Add hooks
 		jQuery('.card').click(@onCardClick)

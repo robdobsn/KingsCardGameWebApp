@@ -2,9 +2,9 @@
 class KingsGame
 
 	constructor: (@basePath) ->
-		@playingCards = new PlayingCards()
-		@gameBoard = new GameBoard(@playingCards)
-		@displayBoard = new DisplayBoard(@playingCards, @dragCellCallback, @clickCallback, @resizeHandler, @basePath, ".game-board")
+		@gameMode = "random"
+		@gameBoard = new GameBoard()
+		@displayBoard = new DisplayBoard(@dragCellCallback, @clickCallback, @resizeHandler, @basePath, ".game-board")
 		@gameHistory = new GameHistory()
 		@gameSearch = new GameSearch()
 		@exitHintMode()
@@ -19,6 +19,10 @@ class KingsGame
 		jQuery('.game-button-hint').button().click(@getHint)
 		jQuery('.game-button-play-hint').button().click(@playHint)
 		jQuery('.game-button-play-hint').css('visibility', 'hidden')
+		jQuery('.game-button-fixed-random').button().click(@fixedRandom)
+		jQuery('.game-button-fixed-minus').button().click(@fixedGameMinus)
+		jQuery('.game-button-fixed-plus').button().click(@fixedGamePlus)
+		jQuery('.game-button-new-game').button().click(@newGame)
 		@gameBoard.deal()
 		@gameBoard.removeAces()
 		@gameHistory.addToHistory(@gameBoard)
@@ -29,6 +33,44 @@ class KingsGame
 		@exitHintMode()
 		@displayBoard.hidePick2()
 		@displayBoard.showGameState(@gameBoard)
+
+	newGame: () =>
+		gameNumber = @gameBoard.gameSeed
+		console.log "New Game"
+		@exitHintMode()
+		@gameBoard = new GameBoard()
+		if @gameMode == "fixed"
+			@gameBoard.setFixedSeed(gameNumber)
+		@gameBoard.deal()
+		@gameBoard.removeAces()
+		@gameHistory = new GameHistory()
+		@gameHistory.addToHistory(@gameBoard)
+		@playGame()
+
+	fixedRandom: () =>
+		if @gameMode == "random"
+			@gameMode = "fixed"
+			jQuery('.game-button-fixed-random span').text("Random")
+			jQuery('.game-button-fixed-plus').show()
+			jQuery('.game-button-fixed-minus').show()
+			@gameBoard.setFixedSeed(1)
+			@newGame()
+		else
+			@gameMode = "random"
+			jQuery('.game-button-fixed-random span').text("Fixed")
+			jQuery('.game-button-fixed-plus').hide()
+			jQuery('.game-button-fixed-minus').hide()
+			@gameBoard.setRandomSeed()
+			@displayBoard.showGameState(@gameBoard)
+			@newGame()
+
+	fixedGameMinus: () =>
+		@gameBoard.decrementSeed()
+		@newGame()
+
+	fixedGamePlus: () =>
+		@gameBoard.incrementSeed()
+		@newGame()
 
 	clickCallback: (clickedCardId) =>
 		@exitHintMode()
