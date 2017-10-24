@@ -159,5 +159,5 @@ class DisplayBoard
 			fromCentre = {left: possMove[0][1] * cardWidth + cardWidth/2, top: possMove[0][0] * cardHeight + cardHeight/2}
 			toCentre = {left: possMove[1][1] * cardWidth + cardWidth/2, top: possMove[1][0] * cardHeight + cardHeight/2}
 			@addArrow(fromCentre, toCentre, moveIdx)
-		jQuery('.hint-info-box').html("Best factored score #{bestMoveInfo}")
+		jQuery('.hint-info-box').html("Best score #{bestMoveInfo}")
 		jQuery('.hint-info').css('visibility', 'visible')

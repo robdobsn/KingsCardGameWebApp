@@ -222,7 +222,7 @@ DisplayBoard = (function() {
       };
       this.addArrow(fromCentre, toCentre, moveIdx);
     }
-    jQuery('.hint-info-box').html("Best factored score " + bestMoveInfo);
+    jQuery('.hint-info-box').html("Best score " + bestMoveInfo);
     return jQuery('.hint-info').css('visibility', 'visible');
   };
 
