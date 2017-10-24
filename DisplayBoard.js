@@ -49,7 +49,7 @@ DisplayBoard = (function() {
         jQuery("#row" + rowIdx).append("<img id='cardid" + cardId + "' class='card' width='" + cardWidth + "px' height='" + cardHeight + "px' src='" + cardFileName + "'></img>");
       }
     }
-    jQuery('.game-status-box').html("Turn " + (gameBoard.turns + 1) + " Score " + (gameBoard.getBoardScore()[1]));
+    jQuery('.game-status-box').html("Turn " + (gameBoard.turns + 1) + " Score " + (gameBoard.getScore()));
     jQuery('.card').click(this.onCardClick);
     if (this.USE_DRAG_AND_DROP) {
       jQuery('.card').draggable({

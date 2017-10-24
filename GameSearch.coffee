@@ -1,7 +1,7 @@
 class GameSearch
 
   constructor: () ->
-    @searchDepthAtLayer = [5] # [13,12,12,11,11,11,11,11,10,9,8,7]
+    @searchDepthAtLayer = [12] # [13,12,12,11,11,11,11,11,10,9,8,7]
     @maxMovesAtLayer = [100000] # [1000000,500000,500000,250000,100000]
     @bestFactoredScore = -10000
     @bestMoveList = []
@@ -37,9 +37,9 @@ class GameSearch
         newBoard.moveCardUsingRowAndColInfo(possMove[0], possMove[1])
         newMoveList = [possMove]
         # Check if this move improves on the best
-        newScore = newBoard.getBoardScore()
-        if @bestFactoredScore < newScore[0]
-          @bestFactoredScore = newScore[0]
+        newScore = newBoard.getScore()
+        if @bestFactoredScore < newScore
+          @bestFactoredScore = newScore
           @bestMoveList = newMoveList.slice(0)
         # Recurse from here
         @treeFromHere(newBoard, newMoveList, 1)
@@ -73,9 +73,9 @@ class GameSearch
       newBoard.moveCardUsingRowAndColInfo(possMove[0], possMove[1])
       newMoveList = [possMove]
       # Check if this move improves on the best
-      newScore = newBoard.getBoardScore()
-      if @bestFactoredScore < newScore[0]
-        @bestFactoredScore = newScore[0]
+      newScore = newBoard.getScore()
+      if @bestFactoredScore < newScore
+        @bestFactoredScore = newScore
         @bestMoveList = newMoveList.slice(0)
       # Recurse from here
       @treeFromHere(newBoard, newMoveList, 1)
@@ -88,6 +88,7 @@ class GameSearch
       return
     # Get the possible moves from this position
     possMoves = @getPossibleMoves(startBoard)
+#    console.log "Poss moves " + possMoves.length
     @movesConsidered += possMoves.length
     if @movesConsidered > @maxMovesToConsider
       return
@@ -101,9 +102,9 @@ class GameSearch
       newMoveList = pastMoveList.slice(0)
       newMoveList.push possMove
       # Check if this move improves on the best
-      newScore = newBoard.getBoardScore()
-      if @bestFactoredScore < newScore[0]
-        @bestFactoredScore = newScore[0]
+      newScore = newBoard.getScore()
+      if @bestFactoredScore < newScore
+        @bestFactoredScore = newScore
         @bestMoveList = newMoveList.slice(0)
       # Recursively search the tree
       @treeFromHere(newBoard, newMoveList, recurseDepth+1)

@@ -3,7 +3,7 @@ var GameSearch;
 
 GameSearch = (function() {
   function GameSearch() {
-    this.searchDepthAtLayer = [5];
+    this.searchDepthAtLayer = [12];
     this.maxMovesAtLayer = [100000];
     this.bestFactoredScore = -10000;
     this.bestMoveList = [];
@@ -39,9 +39,9 @@ GameSearch = (function() {
         newBoard = dynamicBoard.clone();
         newBoard.moveCardUsingRowAndColInfo(possMove[0], possMove[1]);
         newMoveList = [possMove];
-        newScore = newBoard.getBoardScore();
-        if (this.bestFactoredScore < newScore[0]) {
-          this.bestFactoredScore = newScore[0];
+        newScore = newBoard.getScore();
+        if (this.bestFactoredScore < newScore) {
+          this.bestFactoredScore = newScore;
           this.bestMoveList = newMoveList.slice(0);
         }
         this.treeFromHere(newBoard, newMoveList, 1);
@@ -75,9 +75,9 @@ GameSearch = (function() {
       newBoard.copy(startBoard);
       newBoard.moveCardUsingRowAndColInfo(possMove[0], possMove[1]);
       newMoveList = [possMove];
-      newScore = newBoard.getBoardScore();
-      if (this.bestFactoredScore < newScore[0]) {
-        this.bestFactoredScore = newScore[0];
+      newScore = newBoard.getScore();
+      if (this.bestFactoredScore < newScore) {
+        this.bestFactoredScore = newScore;
         this.bestMoveList = newMoveList.slice(0);
       }
       this.treeFromHere(newBoard, newMoveList, 1);
@@ -103,9 +103,9 @@ GameSearch = (function() {
       newBoard.moveCardUsingRowAndColInfo(possMove[0], possMove[1]);
       newMoveList = pastMoveList.slice(0);
       newMoveList.push(possMove);
-      newScore = newBoard.getBoardScore();
-      if (this.bestFactoredScore < newScore[0]) {
-        this.bestFactoredScore = newScore[0];
+      newScore = newBoard.getScore();
+      if (this.bestFactoredScore < newScore) {
+        this.bestFactoredScore = newScore;
         this.bestMoveList = newMoveList.slice(0);
       }
       this.treeFromHere(newBoard, newMoveList, recurseDepth + 1);

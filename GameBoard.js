@@ -3,45 +3,57 @@ var GameBoard,
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
 GameBoard = (function() {
+  GameBoard.prototype.numRows = 4;
+
+  GameBoard.prototype.numCols = 13;
+
+  GameBoard.prototype.gapCards = [0, 13, 26, 39];
+
   function GameBoard(playingCards) {
-    var s;
     this.playingCards = playingCards;
     this.isGap = bind(this.isGap, this);
-    this.gapCards = (function() {
-      var i, results;
-      results = [];
-      for (s = i = 0; i <= 3; s = ++i) {
-        results.push(s * this.playingCards.cardsInSuit + this.playingCards.AceId);
-      }
-      return results;
-    }).call(this);
     this.board = [];
+    this.cardLookup = [];
     this.turns = 0;
-    this.numRows = 4;
-    this.numCols = 13;
+    this.score = 0;
   }
 
   GameBoard.prototype.clone = function() {
     var newBoard;
     newBoard = new GameBoard(this.playingCards);
     newBoard.board = this.board.slice(0);
+    newBoard.cardLookup = this.cardLookup.slice(0);
     newBoard.turns = this.turns;
+    newBoard.score = this.score;
     return newBoard;
   };
 
   GameBoard.prototype.copy = function(copyFrom) {
     this.board = copyFrom.board.slice(0);
+    this.cardLookup = copyFrom.cardLookup.slice(0);
     this.turns = copyFrom.turns;
+    this.score = copyFrom.score;
     return true;
   };
 
   GameBoard.prototype.deal = function() {
-    var i, idx, ref;
+    var cardId, idx, j, n, ref;
     this.board = [];
+    this.cardLookup = (function() {
+      var j, ref, results;
+      results = [];
+      for (n = j = 0, ref = this.playingCards.cardsInDeck - 1; 0 <= ref ? j <= ref : j >= ref; n = 0 <= ref ? ++j : --j) {
+        results.push(0);
+      }
+      return results;
+    }).call(this);
     this.playingCards.startDeal();
-    for (idx = i = 0, ref = this.playingCards.cardsInDeck - 1; 0 <= ref ? i <= ref : i >= ref; idx = 0 <= ref ? ++i : --i) {
-      this.board.push(this.playingCards.getNextCard());
+    for (idx = j = 0, ref = this.playingCards.cardsInDeck - 1; 0 <= ref ? j <= ref : j >= ref; idx = 0 <= ref ? ++j : --j) {
+      cardId = this.playingCards.getNextCard();
+      this.board.push(cardId);
+      this.cardLookup[cardId] = idx;
     }
+    this.score = this.getScore();
     return true;
   };
 
@@ -52,11 +64,11 @@ GameBoard = (function() {
   GameBoard.prototype.removeAces = function() {};
 
   GameBoard.prototype.redeal = function() {
-    var cardId, cardInfo, colIdx, colsToRedealFrom, deck, i, j, k, l, m, n, ref, ref1, ref2, ref3, ref4, ref5, ref6, ref7, rowIdx, suitIdxForRow;
+    var boardLocnIdx, cardId, cardInfo, colIdx, colsToRedealFrom, deck, j, k, l, m, o, p, ref, ref1, ref2, ref3, ref4, ref5, ref6, ref7, rowIdx, suitIdxForRow;
     colsToRedealFrom = [];
-    for (rowIdx = i = 0, ref = this.numRows - 1; 0 <= ref ? i <= ref : i >= ref; rowIdx = 0 <= ref ? ++i : --i) {
+    for (rowIdx = j = 0, ref = this.numRows - 1; 0 <= ref ? j <= ref : j >= ref; rowIdx = 0 <= ref ? ++j : --j) {
       suitIdxForRow = -1;
-      for (colIdx = j = 0, ref1 = this.numCols - 1; 0 <= ref1 ? j <= ref1 : j >= ref1; colIdx = 0 <= ref1 ? ++j : --j) {
+      for (colIdx = k = 0, ref1 = this.numCols - 1; 0 <= ref1 ? k <= ref1 : k >= ref1; colIdx = 0 <= ref1 ? ++k : --k) {
         cardId = this.board[rowIdx * this.numCols + colIdx];
         cardInfo = this.playingCards.getCardInfo(cardId);
         if (colIdx === 0) {
@@ -70,8 +82,8 @@ GameBoard = (function() {
     }
     deck = new PlayingCards();
     deck.empty();
-    for (rowIdx = k = 0, ref2 = this.numRows - 1; 0 <= ref2 ? k <= ref2 : k >= ref2; rowIdx = 0 <= ref2 ? ++k : --k) {
-      for (colIdx = l = ref3 = colsToRedealFrom[rowIdx], ref4 = this.numCols - 1; ref3 <= ref4 ? l <= ref4 : l >= ref4; colIdx = ref3 <= ref4 ? ++l : --l) {
+    for (rowIdx = l = 0, ref2 = this.numRows - 1; 0 <= ref2 ? l <= ref2 : l >= ref2; rowIdx = 0 <= ref2 ? ++l : --l) {
+      for (colIdx = m = ref3 = colsToRedealFrom[rowIdx], ref4 = this.numCols - 1; ref3 <= ref4 ? m <= ref4 : m >= ref4; colIdx = ref3 <= ref4 ? ++m : --m) {
         cardId = this.board[rowIdx * this.numCols + colIdx];
         if (!this.isGap(cardId)) {
           deck.addCard(cardId);
@@ -80,18 +92,23 @@ GameBoard = (function() {
     }
     deck.shuffle();
     deck.startDeal();
-    for (rowIdx = m = 0, ref5 = this.numRows - 1; 0 <= ref5 ? m <= ref5 : m >= ref5; rowIdx = 0 <= ref5 ? ++m : --m) {
-      this.board[rowIdx * this.numCols + colsToRedealFrom[rowIdx]] = this.gapCards[rowIdx];
+    for (rowIdx = o = 0, ref5 = this.numRows - 1; 0 <= ref5 ? o <= ref5 : o >= ref5; rowIdx = 0 <= ref5 ? ++o : --o) {
+      boardLocnIdx = rowIdx * this.numCols + colsToRedealFrom[rowIdx];
+      this.board[boardLocnIdx] = this.gapCards[rowIdx];
+      this.cardLookup[this.gapCards[rowIdx]] = boardLocnIdx;
       if (colsToRedealFrom[rowIdx] + 1 < this.numCols) {
-        for (colIdx = n = ref6 = colsToRedealFrom[rowIdx] + 1, ref7 = this.numCols - 1; ref6 <= ref7 ? n <= ref7 : n >= ref7; colIdx = ref6 <= ref7 ? ++n : --n) {
+        for (colIdx = p = ref6 = colsToRedealFrom[rowIdx] + 1, ref7 = this.numCols - 1; ref6 <= ref7 ? p <= ref7 : p >= ref7; colIdx = ref6 <= ref7 ? ++p : --p) {
           cardId = deck.getNextCard();
           if (cardId >= 0) {
-            this.board[rowIdx * this.numCols + colIdx] = cardId;
+            boardLocnIdx = rowIdx * this.numCols + colIdx;
+            this.board[boardLocnIdx] = cardId;
+            this.cardLookup[cardId] = boardLocnIdx;
           }
         }
       }
     }
     this.turns += 1;
+    this.score = this.getScore();
     return true;
   };
 
@@ -106,54 +123,48 @@ GameBoard = (function() {
   };
 
   GameBoard.prototype.getCardToLeftInfo = function(cardId) {
-    var chkCardId, colIdx, i, j, ref, ref1, rowIdx;
-    for (rowIdx = i = 0, ref = this.numRows - 1; 0 <= ref ? i <= ref : i >= ref; rowIdx = 0 <= ref ? ++i : --i) {
-      for (colIdx = j = 0, ref1 = this.numCols - 1; 0 <= ref1 ? j <= ref1 : j >= ref1; colIdx = 0 <= ref1 ? ++j : --j) {
-        chkCardId = this.board[rowIdx * this.numCols + colIdx];
-        if (chkCardId === cardId) {
-          if (colIdx === 0) {
-            return [-1, rowIdx, colIdx, 0, 0];
-          }
-          return [this.board[rowIdx * this.numCols + colIdx - 1], rowIdx, colIdx, rowIdx, colIdx - 1];
-        }
-      }
+    var cardLocn, colIdx, rowIdx;
+    if (cardId < 0 || cardId >= this.cardLookup.length) {
+      debugger;
     }
-    return [-2, 0, 0, 0, 0];
+    cardLocn = this.cardLookup[cardId];
+    rowIdx = Math.floor(cardLocn / this.numCols);
+    colIdx = cardLocn % this.numCols;
+    if (colIdx === 0) {
+      return [-1, rowIdx, colIdx, 0, 0];
+    }
+    return [this.board[rowIdx * this.numCols + colIdx - 1], rowIdx, colIdx, rowIdx, colIdx - 1];
   };
 
   GameBoard.prototype.getLocnOfCard = function(cardId) {
-    var chkCardId, colIdx, i, j, ref, ref1, rowIdx;
-    for (rowIdx = i = 0, ref = this.numRows - 1; 0 <= ref ? i <= ref : i >= ref; rowIdx = 0 <= ref ? ++i : --i) {
-      for (colIdx = j = 0, ref1 = this.numCols - 1; 0 <= ref1 ? j <= ref1 : j >= ref1; colIdx = 0 <= ref1 ? ++j : --j) {
-        chkCardId = this.board[rowIdx * this.numCols + colIdx];
-        if (chkCardId === cardId) {
-          return [true, rowIdx, colIdx];
-        }
-      }
+    var cardLocn, colIdx, rowIdx;
+    if (cardId < 0 || cardId >= this.cardLookup.length) {
+      debugger;
     }
-    return [false, 0, 0];
+    cardLocn = this.cardLookup[cardId];
+    rowIdx = Math.floor(cardLocn / this.numCols);
+    colIdx = cardLocn % this.numCols;
+    return [true, rowIdx, colIdx];
   };
 
   GameBoard.prototype.getEmptySquares = function() {
-    var chkCardId, colIdx, emptySqList, i, j, ref, ref1, rowIdx;
+    var cardLocn, colIdx, emptySqList, j, mtIdx, rowIdx;
     emptySqList = [];
-    for (rowIdx = i = 0, ref = this.numRows - 1; 0 <= ref ? i <= ref : i >= ref; rowIdx = 0 <= ref ? ++i : --i) {
-      for (colIdx = j = 0, ref1 = this.numCols - 1; 0 <= ref1 ? j <= ref1 : j >= ref1; colIdx = 0 <= ref1 ? ++j : --j) {
-        chkCardId = this.board[rowIdx * this.numCols + colIdx];
-        if (this.isGap(chkCardId)) {
-          emptySqList.push([rowIdx, colIdx]);
-        }
-      }
+    for (mtIdx = j = 0; j <= 3; mtIdx = ++j) {
+      cardLocn = this.cardLookup[this.gapCards[mtIdx]];
+      rowIdx = Math.floor(cardLocn / this.numCols);
+      colIdx = cardLocn % this.numCols;
+      emptySqList.push([rowIdx, colIdx]);
     }
     return emptySqList;
   };
 
   GameBoard.prototype.getValidMovesForEmptySq = function(mtIdx) {
-    var cardCol, cardLocn, cardRow, cardToLeftId, cardToMove, i, nextCard, ref, spaceCol, spaceRow, suitIdx, validMoves;
+    var cardCol, cardLocn, cardRow, cardToLeftId, cardToMove, j, nextCard, ref, spaceCol, spaceRow, suitIdx, validMoves;
     validMoves = [];
     ref = this.getCardToLeftInfo(this.gapCards[mtIdx]), cardToLeftId = ref[0], spaceRow = ref[1], spaceCol = ref[2], cardRow = ref[3], cardCol = ref[4];
     if (cardToLeftId < 0 && spaceCol === 0) {
-      for (suitIdx = i = 0; i <= 3; suitIdx = ++i) {
+      for (suitIdx = j = 0; j <= 3; suitIdx = ++j) {
         cardToMove = this.playingCards.getCardId(suitIdx, this.playingCards.TwoId);
         if (cardToMove >= 0) {
           cardLocn = this.getLocnOfCard(cardToMove);
@@ -164,8 +175,8 @@ GameBoard = (function() {
       }
     } else if (!this.isGap(cardToLeftId)) {
       nextCard = this.playingCards.findNextCardInSameSuit(cardToLeftId);
-      cardLocn = this.getLocnOfCard(nextCard);
       if (nextCard >= 0) {
+        cardLocn = this.getLocnOfCard(nextCard);
         validMoves.push([[cardLocn[1], cardLocn[2]], [spaceRow, spaceCol]]);
       }
     }
@@ -179,7 +190,7 @@ GameBoard = (function() {
       if (cardToLeftId === -1) {
         return ["select2", 0, 0, clickedRow, clickedCol];
       }
-      if (cardToLeftId >= 0) {
+      if (cardToLeftId > 0 && !this.isGap(cardToLeftId)) {
         fromCardId = this.playingCards.findNextCardInSameSuit(cardToLeftId);
         if (fromCardId > 0) {
           return this.moveCard(fromCardId, toCardId);
@@ -214,14 +225,19 @@ GameBoard = (function() {
   };
 
   GameBoard.prototype.moveCard = function(fromCardId, toCardId) {
-    var fromColIdx, fromRowIdx, gapId, ok, ref, ref1, toColIdx, toRowIdx;
+    var cardId, cardLocnIdx, fromColIdx, fromRowIdx, gapId, gapLocnIdx, ok, ref, ref1, toColIdx, toRowIdx;
     ref = this.getLocnOfCard(fromCardId), ok = ref[0], fromRowIdx = ref[1], fromColIdx = ref[2];
     if (ok) {
       ref1 = this.getLocnOfCard(toCardId), ok = ref1[0], toRowIdx = ref1[1], toColIdx = ref1[2];
       if (ok) {
-        gapId = this.board[toRowIdx * this.numCols + toColIdx];
-        this.board[toRowIdx * this.numCols + toColIdx] = this.board[fromRowIdx * this.numCols + fromColIdx];
-        this.board[fromRowIdx * this.numCols + fromColIdx] = gapId;
+        gapLocnIdx = toRowIdx * this.numCols + toColIdx;
+        gapId = this.board[gapLocnIdx];
+        cardLocnIdx = fromRowIdx * this.numCols + fromColIdx;
+        cardId = this.board[cardLocnIdx];
+        this.board[gapLocnIdx] = cardId;
+        this.board[cardLocnIdx] = gapId;
+        this.cardLookup[cardId] = gapLocnIdx;
+        this.cardLookup[gapId] = cardLocnIdx;
         return ["ok", fromRowIdx, fromColIdx, toRowIdx, toColIdx];
       }
     }
@@ -229,42 +245,34 @@ GameBoard = (function() {
   };
 
   GameBoard.prototype.moveCardUsingRowAndColInfo = function(fromRowCol, toRowCol) {
-    var gapId;
-    gapId = this.board[toRowCol[0] * this.numCols + toRowCol[1]];
-    this.board[toRowCol[0] * this.numCols + toRowCol[1]] = this.board[fromRowCol[0] * this.numCols + fromRowCol[1]];
-    this.board[fromRowCol[0] * this.numCols + fromRowCol[1]] = gapId;
+    var cardId, cardLocnIdx, gapId, gapLocnIdx;
+    gapLocnIdx = toRowCol[0] * this.numCols + toRowCol[1];
+    gapId = this.board[gapLocnIdx];
+    cardLocnIdx = fromRowCol[0] * this.numCols + fromRowCol[1];
+    cardId = this.board[cardLocnIdx];
+    this.board[gapLocnIdx] = cardId;
+    this.board[cardLocnIdx] = gapId;
+    this.cardLookup[cardId] = gapLocnIdx;
+    this.cardLookup[gapId] = cardLocnIdx;
     return ["ok", fromRowCol[0], fromRowCol[1], toRowCol[0], toRowCol[1]];
   };
 
-  GameBoard.prototype.getCardName = function(cardId) {};
-
-  GameBoard.prototype.debugDump = function(debugStr) {
-    var cardId, cardInfo, col, i, j, ref, ref1, results, row, rowStr;
-    console.log(debugStr);
-    results = [];
-    for (row = i = 0, ref = this.numRows - 1; 0 <= ref ? i <= ref : i >= ref; row = 0 <= ref ? ++i : --i) {
-      rowStr = "";
-      for (col = j = 0, ref1 = this.numCols - 1; 0 <= ref1 ? j <= ref1 : j >= ref1; col = 0 <= ref1 ? ++j : --j) {
-        cardId = this.getCardId(row, col);
-        cardInfo = this.playingCards.getCardInfo(cardId);
-        if (this.isGap(cardId)) {
-          rowStr += "G" + " ";
-        } else {
-          rowStr += cardInfo.cardShortName + " ";
-        }
-      }
-      results.push(console.log(rowStr));
+  GameBoard.prototype.getCardName = function(cardId) {
+    var cardInfo;
+    cardInfo = this.playingCards.getCardInfo(cardId);
+    if (this.isGap(cardId)) {
+      return "GP";
     }
-    return results;
+    return cardInfo.cardShortName;
   };
 
-  GameBoard.prototype.getBoardScore = function() {
-    var cardId, col, completeRows, factoredScore, i, j, k, kingLastColumns, kingSpaces, l, lastCardWasKing, rawScore, ref, ref1, ref2, ref3, row, rowSuit;
+  GameBoard.prototype.getScore = function() {
+    var cardId, col, completeRows, j, k, rawScore, ref, ref1, row, rowSuit;
     rawScore = 0;
     completeRows = 0;
-    for (row = i = 0, ref = this.numRows - 1; 0 <= ref ? i <= ref : i >= ref; row = 0 <= ref ? ++i : --i) {
+    for (row = j = 0, ref = this.numRows - 1; 0 <= ref ? j <= ref : j >= ref; row = 0 <= ref ? ++j : --j) {
       rowSuit = -1;
-      for (col = j = 0, ref1 = this.numCols - 1; 0 <= ref1 ? j <= ref1 : j >= ref1; col = 0 <= ref1 ? ++j : --j) {
+      for (col = k = 0, ref1 = this.numCols - 1; 0 <= ref1 ? k <= ref1 : k >= ref1; col = 0 <= ref1 ? ++k : --k) {
         cardId = this.getCardId(row, col);
         if (col === 0) {
           if (this.playingCards.getCardRank(cardId) === this.playingCards.TwoId) {
@@ -285,32 +293,45 @@ GameBoard = (function() {
         }
       }
     }
-    kingSpaces = 0;
-    kingLastColumns = 0;
-    for (row = k = 0, ref2 = this.numRows - 1; 0 <= ref2 ? k <= ref2 : k >= ref2; row = 0 <= ref2 ? ++k : --k) {
-      lastCardWasKing = false;
-      for (col = l = 0, ref3 = this.numCols - 1; 0 <= ref3 ? l <= ref3 : l >= ref3; col = 0 <= ref3 ? ++l : --l) {
+    return rawScore;
+  };
+
+  GameBoard.prototype.debugDump = function(debugStr) {
+    var cardId, col, i, j, k, l, m, ref, ref1, row, rowStr;
+    console.log(debugStr);
+    for (row = j = 0, ref = this.numRows - 1; 0 <= ref ? j <= ref : j >= ref; row = 0 <= ref ? ++j : --j) {
+      rowStr = "";
+      for (col = k = 0, ref1 = this.numCols - 1; 0 <= ref1 ? k <= ref1 : k >= ref1; col = 0 <= ref1 ? ++k : --k) {
         cardId = this.getCardId(row, col);
-        if (this.playingCards.getCardRank(cardId) === this.playingCards.KingId) {
-          if (col === this.numCols - 1) {
-            kingLastColumns++;
-          } else {
-            lastCardWasKing = true;
-          }
-        } else {
-          if (this.playingCards.getCardRank(cardId) === this.playingCards.AceId && lastCardWasKing) {
-            kingSpaces++;
-          }
-          lastCardWasKing = false;
-        }
+        rowStr += this.getCardName(cardId) + " ";
+      }
+      console.log(rowStr);
+    }
+    rowStr = "";
+    for (i = l = 0; l <= 51; i = ++l) {
+      rowStr += ("00" + this.cardLookup[i]).substr(-2, 2) + " ";
+    }
+    console.log(rowStr);
+    rowStr = "";
+    for (i = m = 0; m <= 51; i = ++m) {
+      rowStr += this.getCardName(i) + " ";
+    }
+    return console.log(rowStr);
+  };
+
+  GameBoard.prototype.checkValidity = function() {
+    var cardId, cardLocn, cardStr, j, ref, results;
+    results = [];
+    for (cardId = j = 0, ref = this.playingCards.cardsInDeck - 1; 0 <= ref ? j <= ref : j >= ref; cardId = 0 <= ref ? ++j : --j) {
+      cardLocn = this.cardLookup[cardId];
+      if (this.board[cardLocn] !== cardId) {
+        cardStr = this.getCardName(cardId);
+        results.push(console.log("Mismatch cardId " + cardStr + " <> locn " + cardLocn));
+      } else {
+        results.push(void 0);
       }
     }
-    if (completeRows === 4) {
-      factoredScore = 100;
-    } else {
-      factoredScore = rawScore - kingSpaces + kingLastColumns + completeRows * 5;
-    }
-    return [factoredScore, rawScore];
+    return results;
   };
 
   return GameBoard;

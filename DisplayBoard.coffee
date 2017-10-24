@@ -30,8 +30,8 @@ class DisplayBoard
 					cardFileName = @basePath + "cards/" + gameBoard.getCardFileName(rowIdx, colIdx)
 				jQuery("#row#{rowIdx}").append("<img id='cardid#{cardId}' class='card' width='#{cardWidth}px' height='#{cardHeight}px' src='#{cardFileName}'></img>")
 		# Show status
-		jQuery('.game-status-box').html("Turn #{gameBoard.turns+1} Score #{gameBoard.getBoardScore()[1]}")
-#		console.log "Score " + gameBoard.getBoardScore()
+		jQuery('.game-status-box').html("Turn #{gameBoard.turns+1} Score #{gameBoard.getScore()}")
+#		console.log "Score " + gameBoard.getScore()
 		# Add hooks
 		jQuery('.card').click(@onCardClick)
 		if @USE_DRAG_AND_DROP
