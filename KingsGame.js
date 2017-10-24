@@ -48,7 +48,6 @@ KingsGame = (function() {
   };
 
   KingsGame.prototype.playGame = function() {
-    console.log("Playing Kings");
     this.exitHintMode();
     this.displayBoard.hidePick2();
     return this.displayBoard.showGameState(this.gameBoard);
@@ -57,7 +56,6 @@ KingsGame = (function() {
   KingsGame.prototype.newGame = function() {
     var gameNumber;
     gameNumber = this.gameBoard.gameSeed;
-    console.log("New Game");
     this.exitHintMode();
     this.gameBoard = new GameBoard();
     if (this.gameMode === "fixed") {

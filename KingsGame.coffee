@@ -29,14 +29,14 @@ class KingsGame
 		@playGame()
 
 	playGame: () ->
-		console.log "Playing Kings"
+#		console.log "Playing Kings"
 		@exitHintMode()
 		@displayBoard.hidePick2()
 		@displayBoard.showGameState(@gameBoard)
 
 	newGame: () =>
 		gameNumber = @gameBoard.gameSeed
-		console.log "New Game"
+#		console.log "New Game"
 		@exitHintMode()
 		@gameBoard = new GameBoard()
 		if @gameMode == "fixed"

@@ -17,7 +17,7 @@ class DisplayBoard
 		displayHeight = jQuery(@selectorForPage).height()
 		cardWidth = displayWidth / gameBoard.numCols
 		cardHeight = cardWidth * 1.545
-		console.log("Width " + displayWidth + " height " + displayHeight + " cardWidth " + cardWidth + " cardHeight " + cardHeight)
+#		console.log("Width " + displayWidth + " height " + displayHeight + " cardWidth " + cardWidth + " cardHeight " + cardHeight)
 		# Clear the display area
 		jQuery('.game-board').html("")
 		# Show the cards
@@ -86,7 +86,7 @@ class DisplayBoard
 	showPick2: () ->
 		pickY = jQuery(@selectorForPage).height() - 100
 		pickX = jQuery(@selectorForPage).width()
-		console.log "{top:#{pickY/2}px; left:#{pickX/2}px"
+#		console.log "{top:#{pickY/2}px; left:#{pickX/2}px"
 		jQuery(".click-on-two").css('top',"#{pickY/2}px")
 		jQuery(".click-on-two").css('left',"#{pickX/4}px")
 		jQuery(".click-on-two").css('width',"#{pickX/2}px")

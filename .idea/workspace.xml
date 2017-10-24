@@ -26,7 +26,7 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="525">
-      <file leaf-file-name="KingsGame.html" pinned="false" current-in-tab="false">
+      <file leaf-file-name="KingsGame.html" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/KingsGame.html">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="153">
@@ -91,28 +91,7 @@
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="-357">
               <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-              <folding>
-                <marker date="1508846483476" expanded="true" signature="82:4111" ph="{...}" />
-                <marker date="1508846483476" expanded="true" signature="985:989" ph="{...}" />
-                <marker date="1508846483476" expanded="true" signature="1367:1620" ph="{...}" />
-                <marker date="1508846483476" expanded="true" signature="1687:1741" ph="{...}" />
-                <marker date="1508846483476" expanded="true" signature="1800:2444" ph="{...}" />
-                <marker date="1508846483476" expanded="true" signature="1887:1910" ph="{...}" />
-                <marker date="1508846483476" expanded="true" signature="2021:2044" ph="{...}" />
-                <marker date="1508846483476" expanded="true" signature="2141:2418" ph="{&quot;suitIdx&quot;: suitIdx...}" />
-                <marker date="1508846483476" expanded="true" signature="2507:2565" ph="{...}" />
-                <marker date="1508846483476" expanded="true" signature="2624:3051" ph="{...}" />
-                <marker date="1508846483476" expanded="true" signature="2931:3030" ph="{...}" />
-                <marker date="1508846483476" expanded="true" signature="3102:3140" ph="{...}" />
-                <marker date="1508846483476" expanded="true" signature="3193:3356" ph="{...}" />
-                <marker date="1508846483476" expanded="true" signature="3426:3580" ph="{...}" />
-                <marker date="1508846483476" expanded="true" signature="3529:3553" ph="{...}" />
-                <marker date="1508846483476" expanded="true" signature="3627:3659" ph="{...}" />
-                <marker date="1508846483476" expanded="true" signature="3714:3754" ph="{...}" />
-                <marker date="1508846483476" expanded="true" signature="3813:3856" ph="{...}" />
-                <marker date="1508846483476" expanded="true" signature="3915:3970" ph="{...}" />
-                <marker date="1508846483476" expanded="true" signature="4023:4083" ph="{...}" />
-              </folding>
+              <folding />
             </state>
           </provider>
         </entry>
@@ -120,7 +99,7 @@
       <file leaf-file-name="GameBoard.coffee" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/GameBoard.coffee">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="374">
+            <state relative-caret-position="-493">
               <caret line="79" column="15" lean-forward="true" selection-start-line="79" selection-start-column="15" selection-end-line="79" selection-end-column="15" />
               <folding />
             </state>
@@ -140,18 +119,18 @@
       <file leaf-file-name="KingsGame.coffee" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/KingsGame.coffee">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1044">
-              <caret line="82" column="47" lean-forward="true" selection-start-line="82" selection-start-column="47" selection-end-line="82" selection-end-column="47" />
+            <state relative-caret-position="194">
+              <caret line="32" column="19" lean-forward="true" selection-start-line="32" selection-start-column="19" selection-end-line="32" selection-end-column="19" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="DisplayBoard.coffee" pinned="false" current-in-tab="true">
+      <file leaf-file-name="DisplayBoard.coffee" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/DisplayBoard.coffee">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="387">
-              <caret line="62" column="0" lean-forward="true" selection-start-line="62" selection-start-column="0" selection-end-line="62" selection-end-column="0" />
+            <state relative-caret-position="1513">
+              <caret line="89" column="0" lean-forward="false" selection-start-line="89" selection-start-column="0" selection-end-line="89" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -169,7 +148,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>mtidx</find>
       <find>floor</find>
       <find>cardid</find>
       <find>AceId</find>
@@ -191,14 +169,15 @@
       <find>playingcards</find>
       <find>playingc</find>
       <find>pseu</find>
-      <find>createun</find>
       <find>showp</find>
       <find>display:</find>
       <find>none</find>
       <find>hide</find>
-      <find>hidep</find>
-      <find>hidePick2</find>
       <find>click-on-two</find>
+      <find>factored</find>
+      <find>hidePick2</find>
+      <find>createun</find>
+      <find>hidep</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -215,9 +194,9 @@
         <option value="$PROJECT_DIR$/PseudoRandom.coffee" />
         <option value="$PROJECT_DIR$/GameSearch.coffee" />
         <option value="$PROJECT_DIR$/GameBoard.coffee" />
-        <option value="$PROJECT_DIR$/KingsGame.coffee" />
         <option value="$PROJECT_DIR$/KingsGame.html" />
         <option value="$PROJECT_DIR$/DisplayBoard.coffee" />
+        <option value="$PROJECT_DIR$/KingsGame.coffee" />
       </list>
     </option>
   </component>
@@ -234,7 +213,7 @@
     <detection-done>true</detection-done>
     <sorting>DEFINITION_ORDER</sorting>
   </component>
-  <component name="ProjectFrameBounds">
+  <component name="ProjectFrameBounds" extendedState="1">
     <option name="x" value="-11" />
     <option name="width" value="3014" />
     <option name="height" value="1604" />
@@ -344,7 +323,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-11" y="0" width="3014" height="1604" extended-state="0" />
+    <frame x="-11" y="0" width="3014" height="1604" extended-state="1" />
     <editor active="true" />
     <layout>
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
@@ -813,35 +792,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/PlayingCards.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-357">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding>
-            <marker date="1508846483476" expanded="true" signature="82:4111" ph="{...}" />
-            <marker date="1508846483476" expanded="true" signature="985:989" ph="{...}" />
-            <marker date="1508846483476" expanded="true" signature="1367:1620" ph="{...}" />
-            <marker date="1508846483476" expanded="true" signature="1687:1741" ph="{...}" />
-            <marker date="1508846483476" expanded="true" signature="1800:2444" ph="{...}" />
-            <marker date="1508846483476" expanded="true" signature="1887:1910" ph="{...}" />
-            <marker date="1508846483476" expanded="true" signature="2021:2044" ph="{...}" />
-            <marker date="1508846483476" expanded="true" signature="2141:2418" ph="{&quot;suitIdx&quot;: suitIdx...}" />
-            <marker date="1508846483476" expanded="true" signature="2507:2565" ph="{...}" />
-            <marker date="1508846483476" expanded="true" signature="2624:3051" ph="{...}" />
-            <marker date="1508846483476" expanded="true" signature="2931:3030" ph="{...}" />
-            <marker date="1508846483476" expanded="true" signature="3102:3140" ph="{...}" />
-            <marker date="1508846483476" expanded="true" signature="3193:3356" ph="{...}" />
-            <marker date="1508846483476" expanded="true" signature="3426:3580" ph="{...}" />
-            <marker date="1508846483476" expanded="true" signature="3529:3553" ph="{...}" />
-            <marker date="1508846483476" expanded="true" signature="3627:3659" ph="{...}" />
-            <marker date="1508846483476" expanded="true" signature="3714:3754" ph="{...}" />
-            <marker date="1508846483476" expanded="true" signature="3813:3856" ph="{...}" />
-            <marker date="1508846483476" expanded="true" signature="3915:3970" ph="{...}" />
-            <marker date="1508846483476" expanded="true" signature="4023:4083" ph="{...}" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/PseudoRandom.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="187">
@@ -872,18 +822,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/PlayingCards.coffee">
+    <entry file="file://$PROJECT_DIR$/DisplayBoard.coffee">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="442">
-          <caret line="38" column="34" lean-forward="true" selection-start-line="38" selection-start-column="34" selection-end-line="38" selection-end-column="34" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/GameBoard.coffee">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="374">
-          <caret line="79" column="15" lean-forward="true" selection-start-line="79" selection-start-column="15" selection-end-line="79" selection-end-column="15" />
+        <state relative-caret-position="1513">
+          <caret line="89" column="0" lean-forward="false" selection-start-line="89" selection-start-column="0" selection-end-line="89" selection-end-column="0" />
           <folding />
         </state>
       </provider>
@@ -896,10 +838,34 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/GameBoard.coffee">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-493">
+          <caret line="79" column="15" lean-forward="true" selection-start-line="79" selection-start-column="15" selection-end-line="79" selection-end-column="15" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/PlayingCards.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-357">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/PlayingCards.coffee">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="442">
+          <caret line="38" column="34" lean-forward="true" selection-start-line="38" selection-start-column="34" selection-end-line="38" selection-end-column="34" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/KingsGame.coffee">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1044">
-          <caret line="82" column="47" lean-forward="true" selection-start-line="82" selection-start-column="47" selection-end-line="82" selection-end-column="47" />
+        <state relative-caret-position="194">
+          <caret line="32" column="19" lean-forward="true" selection-start-line="32" selection-start-column="19" selection-end-line="32" selection-end-column="19" />
           <folding />
         </state>
       </provider>
@@ -913,14 +879,6 @@
             <element signature="n#style#0;n#div#0;n#div#6;n#body#0;n#html#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#div#0;n#div#8;n#body#0;n#html#0;n#!!top" expanded="true" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/DisplayBoard.coffee">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="387">
-          <caret line="62" column="0" lean-forward="true" selection-start-line="62" selection-start-column="0" selection-end-line="62" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
