@@ -24,9 +24,9 @@ class DisplayBoard
 		for rowIdx in [0..gameBoard.numRows-1]
 			jQuery('.game-board').append("<div class='row' id='row#{rowIdx}'></div>")
 			for colIdx in [0..gameBoard.numCols-1]
-				cardId = gameBoard.getCardId(rowIdx, colIdx)
-				cardRank = @playingCards.getCardRank(cardId)
-				if cardRank == @playingCards.AceId
+				cardId = gameBoard.getCardIdByRowAndCol(rowIdx, colIdx)
+				cardRank = PlayingCards.getCardRank(cardId)
+				if cardRank == PlayingCards.AceId
 					cardFileName = "cards/card_empty.png"
 				else
 					cardFileName = @basePath + "cards/" + gameBoard.getCardFileName(rowIdx, colIdx)

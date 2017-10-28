@@ -1,16 +1,20 @@
 class PlayingCards
-	cardsInDeck: 52
-	cardsInSuit: 13
-	suitNames: [ 'club', 'diamond', 'heart', 'spade' ]
-	shortSuitNames: [ 'C', 'D', 'H', 'S' ]
-	rankNames: [ 'Ace', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'Jack', 'Queen', 'King' ]
-	shortRankNames: ['A', '2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K' ]
+	# Class variables
+	@cardsInDeck: 52
+	@cardsInSuit: 13
+	@suitNames: [ 'club', 'diamond', 'heart', 'spade' ]
+	@shortSuitNames: [ 'C', 'D', 'H', 'S' ]
+	@rankNames: [ 'Ace', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'Jack', 'Queen', 'King' ]
+	@shortRankNames: ['A', '2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K' ]
+	@AceId: 0
+	@TwoId: 1
+	@KingId: 12
+	# Instance variables
 	dealNextIdx: 0
-	AceId: 0
-	TwoId: 1
-	KingId: 12
 	deck: []
 
+	####################################################
+	# Instance methods
 	constructor: (create=true, shuffle=true) ->
 		if create
 			@createUnsorted()
@@ -18,37 +22,14 @@ class PlayingCards
 			@shuffle()
 		# console.log @getCardInfo(cardIdx).cardFileNamePng for cardIdx in @deck
 
-	getPseudoRandomSeed: () ->
-		pseudoRandom = new PseudoRandom(0)
-		return pseudoRandom.getRandomSeed()
-
-	maxSeed: () ->
-		pseudoRandom = new PseudoRandom(0)
-		return pseudoRandom.getMaxSeed()
+	empty: () ->
+		@deck = []
 
 	createUnsorted: () ->
-		@deck = [0..@cardsInDeck-1]
+		@deck = [0..PlayingCards.cardsInDeck-1]
 
-	getCardId: (suitIdx, rankIdx) ->
-		return suitIdx * @cardsInSuit + rankIdx
-
-	getCardInfo: (cardId) ->
-		if cardId > @cardsInDeck-1 then debugger
-		suitIdx = Math.floor (cardId / @cardsInSuit)
-		if suitIdx < 0 or suitIdx >= @suitNames.length then debugger
-		suitName = @suitNames[suitIdx]
-		rankIdx = cardId % @cardsInSuit
-		cardInfo =
-			suitIdx: suitIdx
-			suitName: suitName
-			rankIdx: rankIdx
-			rankName: @rankNames[rankIdx]
-			cardFileNamePng: "card_" + (rankIdx+1) + "_" + suitName + ".png"
-			cardShortName: @shortSuitNames[suitIdx] + @shortRankNames[rankIdx]
-		return cardInfo
-
-	getCardFileName: (cardId) ->
-		return @getCardInfo(cardId).cardFileNamePng
+	addCard: (cardId) ->
+		@deck.push cardId
 
 	shuffle: (randomSeed = 0) ->
 		# From the end of the list to the beginning, pick element `i`.
@@ -65,30 +46,56 @@ class PlayingCards
 	startDeal: () ->
 		@dealNextIdx = 0
 
-	getNextCard: () ->
+	dealNextCard: () ->
 		card = @deck[@dealNextIdx]
 		@dealNextIdx += 1
 		@dealNextIdx = @dealNextIdx % @deck.length
 		return card
 
-	findNextCardInSameSuit: (cardId) ->
-		cardInfo = @getCardInfo(cardId)
-		if cardInfo.rankIdx == @KingId
+	####################################################
+	# Class Methods
+	@getPseudoRandomSeed: () ->
+		return PseudoRandom.getRandomSeed()
+
+	@maxSeed: () ->
+		return PseudoRandom.getMaxSeed()
+
+	@getCardIdBySuitAndRank: (suitIdx, rankIdx) ->
+		return suitIdx * PlayingCards.cardsInSuit + rankIdx
+
+	@getCardRank: (cardId) ->
+		return cardId % PlayingCards.cardsInSuit
+
+	@getCardSuit: (cardId) ->
+		return Math.floor (cardId / PlayingCards.cardsInSuit)
+
+	@isAce: (cardId) ->
+		return (cardId % PlayingCards.cardsInSuit) == PlayingCards.AceId
+
+	@getCardInfo: (cardId) ->
+		if cardId > PlayingCards.cardsInDeck-1 then debugger
+		suitIdx = Math.floor (cardId / PlayingCards.cardsInSuit)
+		if suitIdx < 0 or suitIdx >= PlayingCards.suitNames.length then debugger
+		suitName = PlayingCards.suitNames[suitIdx]
+		rankIdx = cardId % PlayingCards.cardsInSuit
+		cardInfo =
+			suitIdx: suitIdx
+			suitName: suitName
+			rankIdx: rankIdx
+			rankName: PlayingCards.rankNames[rankIdx]
+			cardFileNamePng: "card_" + (rankIdx+1) + "_" + suitName + ".png"
+			cardShortName: PlayingCards.shortSuitNames[suitIdx] + PlayingCards.shortRankNames[rankIdx]
+		return cardInfo
+
+	@getCardFileName: (cardId) ->
+		return @getCardInfo(cardId).cardFileNamePng
+
+	@findPrevCardInSameSuit: (cardId) ->
+		if @getCardRank(cardId) == PlayingCards.AceId
+			return -1
+		return cardId - 1
+
+	@findNextCardInSameSuit: (cardId) ->
+		if @getCardRank(cardId) == PlayingCards.KingId
 			return -1
 		return cardId + 1
-
-	empty: () ->
-		@deck = []
-
-	addCard: (cardId) ->
-		@deck.push cardId
-
-	getCardRank: (cardId) ->
-		return cardId % @cardsInSuit
-
-	getCardSuit: (cardId) ->
-		return Math.floor (cardId / @cardsInSuit)
-
-	isAce: (cardId) ->
-		return (cardId % @cardsInSuit) == @AceId
-

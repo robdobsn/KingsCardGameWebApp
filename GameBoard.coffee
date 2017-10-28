@@ -51,19 +51,19 @@ class GameBoard
 
 	incrementSeed: () ->
 		@gameSeed = @gameSeed + 1
-		if @gameSeed > @playingCards.maxSeed()
-			@gameSeed = @playingCards.maxSeed()
+		if @gameSeed > PlayingCards.maxSeed()
+			@gameSeed = PlayingCards.maxSeed()
 
 	deal: () ->
 		@board = []
-		@cardLookup = (0 for n in [0..@playingCards.cardsInDeck-1])
+		@cardLookup = (0 for n in [0..PlayingCards.cardsInDeck-1])
 		@playingCards.createUnsorted()
 		if @gameSeed == 0
-			@gameSeed = @playingCards.getPseudoRandomSeed()
+			@gameSeed = PlayingCards.getPseudoRandomSeed()
 		@playingCards.shuffle(@gameSeed)
 		@playingCards.startDeal()
-		for idx in [0..@playingCards.cardsInDeck-1]
-			cardId = @playingCards.getNextCard()
+		for idx in [0..PlayingCards.cardsInDeck-1]
+			cardId = @playingCards.dealNextCard()
 			@board.push cardId
 			@cardLookup[cardId] = idx
 		# Recalculate the score
@@ -71,7 +71,7 @@ class GameBoard
 		return true
 
 	isGap: (cardId) =>
-		return @playingCards.isAce(cardId)
+		return PlayingCards.isAce(cardId)
 
 	removeAces: () ->
 		# Just use the ace values as markers of gaps
@@ -85,7 +85,7 @@ class GameBoard
 			suitIdxForRow = -1
 			for colIdx in [0..@numCols-1]
 				cardId = @board[rowIdx*@numCols+colIdx]
-				cardInfo = @playingCards.getCardInfo(cardId)
+				cardInfo = PlayingCards.getCardInfo(cardId)
 				if colIdx == 0
 					suitIdxForRow = cardInfo.suitIdx
 				if @isGap(cardId) or cardInfo.rankIdx-1 != colIdx or cardInfo.suitIdx != suitIdxForRow
@@ -109,7 +109,7 @@ class GameBoard
 			@cardLookup[@gapCards[rowIdx]] = boardLocnIdx
 			if colsToRedealFrom[rowIdx]+1 < @numCols
 				for colIdx in [colsToRedealFrom[rowIdx]+1..@numCols-1]
-					cardId = deck.getNextCard()
+					cardId = deck.dealNextCard()
 					if cardId >= 0
 						boardLocnIdx = rowIdx*@numCols+colIdx
 						@board[boardLocnIdx] = cardId
@@ -119,12 +119,12 @@ class GameBoard
 		@recalculateScore()
 		return true
 
-	getCardId: (rowIdx, colIdx) ->
+	getCardIdByRowAndCol: (rowIdx, colIdx) ->
 		return @board[rowIdx*@numCols+colIdx]
 
 	getCardFileName: (rowIdx, colIdx) ->
 		cardId = @board[rowIdx*@numCols+colIdx]
-		return @playingCards.getCardFileName(cardId)
+		return PlayingCards.getCardFileName(cardId)
 
 	getCardToLeftInfo: (cardId) ->
 		if cardId < 0 or cardId >= @cardLookup.length then debugger
@@ -134,6 +134,15 @@ class GameBoard
 		if colIdx == 0
 			return [-1, rowIdx, colIdx,0,0]
 		return [@board[rowIdx*@numCols+colIdx-1],rowIdx,colIdx,rowIdx,colIdx-1]
+
+	getCardToRightInfo: (cardId) ->
+		if cardId < 0 or cardId >= @cardLookup.length then debugger
+		cardLocn = @cardLookup[cardId]
+		rowIdx = Math.floor(cardLocn / @numCols)
+		colIdx = cardLocn % @numCols
+		if colIdx == @numCols-1
+			return [-1, rowIdx, colIdx,0,0]
+		return [@board[rowIdx*@numCols+colIdx+1],rowIdx,colIdx,rowIdx,colIdx+1]
 
 	getLocnOfCard: (cardId) ->
 		if cardId < 0 or cardId >= @cardLookup.length then debugger
@@ -155,18 +164,18 @@ class GameBoard
 		validMoves = []
 		# Get card at cell before empty one
 		[cardToLeftId,spaceRow,spaceCol,cardRow,cardCol] = @getCardToLeftInfo(@gapCards[mtIdx])
-#		console.log "MovesValid " + toCardId + ", id " + cardToLeftId + ", row " + cardRow + ", col " + cardCol + " card " + @playingCards.getCardInfo(@getCardId(cardRow,cardCol)).cardShortName
+#		console.log "MovesValid " + toCardId + ", id " + cardToLeftId + ", row " + cardRow + ", col " + cardCol + " card " + PlayingCards.getCardInfo(@getCardIdByRowAndCol(cardRow,cardCol)).cardShortName
 		# check if first column
 		if cardToLeftId < 0 and spaceCol == 0
 			for suitIdx in [0..3]
-				cardToMove = @playingCards.getCardId(suitIdx,@playingCards.TwoId)
+				cardToMove = PlayingCards.getCardIdBySuitAndRank(suitIdx,PlayingCards.TwoId)
 				if cardToMove >= 0
 					cardLocn = @getLocnOfCard(cardToMove)
 					if cardLocn[2] != 0  # the 2 cannot be on the first column
 						validMoves.push [[cardLocn[1], cardLocn[2]],[spaceRow,spaceCol]]
-		#				validMoves.push [@playingCards.getCardId(suitIdx,@playingCards.TwoId), toCardId]
+		#				validMoves.push [PlayingCards.getCardIdBySuitAndRank(suitIdx,PlayingCards.TwoId), toCardId]
 		else if not @isGap(cardToLeftId)
-			nextCard = @playingCards.findNextCardInSameSuit(cardToLeftId)
+			nextCard = PlayingCards.findNextCardInSameSuit(cardToLeftId)
 			if nextCard >= 0
 				cardLocn = @getLocnOfCard(nextCard)
 				validMoves.push [[cardLocn[1], cardLocn[2]],[spaceRow,spaceCol]]
@@ -183,7 +192,7 @@ class GameBoard
 			# other space clicked
 			if cardToLeftId > 0 and not @isGap(cardToLeftId)
 				# Don't accept cards at start of row (or failures)
-				fromCardId = @playingCards.findNextCardInSameSuit(cardToLeftId)
+				fromCardId = PlayingCards.findNextCardInSameSuit(cardToLeftId)
 				if fromCardId > 0
 					return @moveCard(fromCardId, toCardId)
 		return ["none",0,0,0,0]
@@ -191,14 +200,14 @@ class GameBoard
 	moveCardIfValid: (fromCardId, toCardId) ->
 		if @isGap(toCardId)
 			moveOk = false
-			if @playingCards.getCardInfo(fromCardId).rankIdx == @playingCards.TwoId
+			if PlayingCards.getCardInfo(fromCardId).rankIdx == PlayingCards.TwoId
 				[ok, toRowIdx, toColIdx] = @getLocnOfCard(toCardId)
 				if ok and toColIdx == 0
 					moveOk = true
 			else
 				[cardToLeftId,clickedRow,clickedCol,cardRow,cardCol] = @getCardToLeftInfo(toCardId)
 				if cardToLeftId >= 0
-					if fromCardId == @playingCards.findNextCardInSameSuit(cardToLeftId)
+					if fromCardId == PlayingCards.findNextCardInSameSuit(cardToLeftId)
 						moveOk = true
 			if moveOk
 				return @moveCard(fromCardId, toCardId)
@@ -228,7 +237,7 @@ class GameBoard
 
 	moveCard: (fromCardId, toCardId) ->
 		[ok, fromRowIdx, fromColIdx] = @getLocnOfCard(fromCardId)
-		if ok 
+		if ok
 			[ok, toRowIdx, toColIdx] = @getLocnOfCard(toCardId)
 			if ok
 				gapLocnIdx =toRowIdx*@numCols+toColIdx
@@ -258,10 +267,16 @@ class GameBoard
 		return [ "ok", fromRowCol[0], fromRowCol[1], toRowCol[0], toRowCol[1] ]
 
 	getCardName: (cardId) ->
-			cardInfo = @playingCards.getCardInfo(cardId)
+			cardInfo = PlayingCards.getCardInfo(cardId)
 			if @isGap(cardId)
 				return "GP"
 			return cardInfo.cardShortName
+
+	getIdOfPrevCard: (cardId) ->
+		prevCardId = PlayingCards.findPrevCardInSameSuit(cardId)
+		if PlayingCards.getCardRank(prevCardId) == PlayingCards.AceId
+			return -2
+		return prevCardId
 
 	recalculateScore: () ->
 		# Cards in sequence
@@ -271,15 +286,15 @@ class GameBoard
 			rowScore = 0
 			rowSuit = -1
 			for col in [0..@numCols-1]
-				cardId = @getCardId(row,col)
+				cardId = @getCardIdByRowAndCol(row,col)
 				if col == 0
-					if @playingCards.getCardRank(cardId) == @playingCards.TwoId
-						rowSuit = @playingCards.getCardSuit(cardId)
+					if PlayingCards.getCardRank(cardId) == PlayingCards.TwoId
+						rowSuit = PlayingCards.getCardSuit(cardId)
 						rowScore++
 					else
 						break
 				else
-					if @playingCards.getCardRank(cardId) == col+1 and @playingCards.getCardSuit(cardId) == rowSuit
+					if PlayingCards.getCardRank(cardId) == col+1 and PlayingCards.getCardSuit(cardId) == rowSuit
 						rowScore++
 						if col == @numCols-1
 							completeRows++
@@ -298,7 +313,7 @@ class GameBoard
 		for row in [0..@numRows-1]
 			rowStr = ""
 			for col in [0..@numCols-1]
-				cardId = @getCardId(row,col)
+				cardId = @getCardIdByRowAndCol(row,col)
 				rowStr += @getCardName(cardId) + " "
 			console.log rowStr
 		rowStr = ""
@@ -311,9 +326,8 @@ class GameBoard
 		console.log rowStr
 
 	checkValidity: () ->
-		for cardId in [0..@playingCards.cardsInDeck-1]
+		for cardId in [0..PlayingCards.cardsInDeck-1]
 			cardLocn = @cardLookup[cardId]
 			if @board[cardLocn] != cardId
 				cardStr = @getCardName(cardId)
 				console.log "Mismatch cardId " + cardStr + " <> locn " + cardLocn
-

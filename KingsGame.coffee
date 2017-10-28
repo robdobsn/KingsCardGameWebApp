@@ -17,8 +17,9 @@ class KingsGame
 		jQuery('.game-button-undo').button().click(@undoMove)
 		jQuery('.game-button-redo').button().click(@redoMove)
 		jQuery('.game-button-hint').button().click(@getHint)
-		jQuery('.game-button-play-hint').button().click(@playHint)
-		jQuery('.game-button-play-hint').css('visibility', 'hidden')
+		jQuery('.game-button-best').button().click(@getBest)
+		jQuery('.game-button-play-best').button().click(@playBest)
+		jQuery('.game-button-play-best').css('visibility', 'hidden')
 		jQuery('.game-button-fixed-random').button().click(@fixedRandom)
 		jQuery('.game-button-fixed-minus').button().click(@fixedGameMinus)
 		jQuery('.game-button-fixed-plus').button().click(@fixedGamePlus)
@@ -73,10 +74,14 @@ class KingsGame
 		@newGame()
 
 	clickCallback: (clickedCardId) =>
+		if @hintMode
+			# Find a loop
+			@getLoop(clickedCardId)
+			return
 		@exitHintMode()
 		# Check if in process of picking a 2
 		if @displayBoard.isPick2()
-			toCardId = @gameBoard.getCardId(@move2ToCell[0], @move2ToCell[1])
+			toCardId = @gameBoard.getCardIdByRowAndCol(@move2ToCell[0], @move2ToCell[1])
 			[moveResult, fromRow, fromCol, toRow, toCol] = @gameBoard.moveCardIfValid(clickedCardId, toCardId)
 			if moveResult == "ok"
 				@displayBoard.hidePick2()
@@ -141,22 +146,30 @@ class KingsGame
 		@displayBoard.showGameState(@gameBoard)
 
 	getHint: () =>
-		bestMoves = @gameSearch.getDynamicTree(@gameBoard, @displayBoard)
-		console.log "Best score " + bestMoves[1]
-		for move in bestMoves[0]
-			console.log "From " + move[0] + " to " + move[1]
-		if bestMoves[0].length > 0
-			@hintMoveIdx = 0
-			jQuery('.game-button-play-hint').css('visibility', 'visible')
-			@displayBoard.showMoveSequence(bestMoves[0], bestMoves[1], @hintMoveIdx, false)
+		@hintMode = !@hintMode
 
-	playHint: () =>
+	getLoop: (clickedCardId) =>
+		loopMoves = @gameSearch.getLoop(@gameBoard, @displayBoard, clickedCardId)
+		if loopMoves.length > 0
+			@displayBoard.showMoveSequence(loopMoves, 0, 0, false)
+
+	getBest: () =>
+		[bestMoveList, bestScore] = @gameSearch.getDynamicTree(@gameBoard, @displayBoard)
+		console.log "Best score " + bestScore
+		for move in bestMoveList
+			console.log "From " + move[0] + " to " + move[1]
+		if bestMoveList.length > 0
+			@hintMoveIdx = 0
+			jQuery('.game-button-play-best').css('visibility', 'visible')
+			@displayBoard.showMoveSequence(bestMoveList, bestScore, @hintMoveIdx, false)
+
+	playBest: () =>
 		# Check we're in hint mode
 		if @hintMoveIdx < 0
 			return
 		# Get the hint moves
-		bestMoves = @gameSearch.getBestMoves()
-		moveToPlay = bestMoves[0][@hintMoveIdx]
+		[bestMoveList, bestScore] = @gameSearch.getBestMoves()
+		moveToPlay = bestMoveList[@hintMoveIdx]
 		# Make the move
 		[moveResult, fromRow, fromCol, toRow, toCol] = @gameBoard.moveCardUsingRowAndColInfo(moveToPlay[0], moveToPlay[1])
 		if moveResult == "ok"
@@ -165,13 +178,14 @@ class KingsGame
 			@gameHistory.addToHistory(@gameBoard)
 		# Next hint move
 		@hintMoveIdx++
-		if @hintMoveIdx >= bestMoves[0].length
+		if @hintMoveIdx >= bestMoveList.length
 			@exitHintMode()
 			return
-		@displayBoard.showMoveSequence(bestMoves[0], bestMoves[1], @hintMoveIdx, false)
+		@displayBoard.showMoveSequence(bestMoveList, bestScore, @hintMoveIdx, false)
 
 	exitHintMode: () =>
+		@hintMode = false
 		@hintMoveIdx = -1
 		@displayBoard.clearArrows()
-		jQuery('.game-button-play-hint').css('visibility', 'hidden')
+		jQuery('.game-button-play-best').css('visibility', 'hidden')
 

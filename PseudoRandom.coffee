@@ -11,12 +11,6 @@ class PseudoRandom
     if @seed <= 0
       @seed += 2147483646
 
-  getRandomSeed: () ->
-    return Math.floor(Math.random() * 2147483645) + 1
-
-  getMaxSeed: () ->
-    return 2147483646
-
   # Returns a pseudo-random value between 1 and 2^32 - 2.
   next: () ->
     return @seed = @seed * 16807 % 2147483647
@@ -25,3 +19,10 @@ class PseudoRandom
   nextFloat: () ->
     # We know that result of next() will be 1 to 2147483646 (inclusive).
     return (@next() - 1) / 2147483646
+
+  @getRandomSeed: () ->
+    return Math.floor(Math.random() * 2147483645) + 1
+
+  @getMaxSeed: () ->
+    return 2147483646
+

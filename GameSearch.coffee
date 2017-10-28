@@ -58,7 +58,7 @@ class GameSearch
     # These are now the best
     @bestMoveList = @dynamicMoveList.slice(0)
     @bestFactoredScore = @dynamicFactoredScore
-    return [@dynamicMoveList, @dynamicFactoredScore]
+    return [@bestMoveList, @bestFactoredScore]
 
   getFullTreeByInitalMove: (startBoard) ->
     @bestFactoredScore = -10000
@@ -112,3 +112,30 @@ class GameSearch
 
   getBestMoves: () ->
     return [@bestMoveList, @bestFactoredScore]
+
+  getLoop: (gameBoard, displayBoard, startCardId) ->
+    # Go through finding next card in sequence
+    moveList = []
+    curCardId = startCardId
+    for i in [0..100]
+      # Check if current card is a gap
+      if gameBoard.isGap(curCardId)
+        console.log "Current card is a gap"
+        break
+      # Get location of current card
+      curCardLocn = gameBoard.getLocnOfCard(curCardId)
+      # Find the card before the current one
+      prevCardId = gameBoard.getIdOfPrevCard(curCardId)
+      prevCardStr = if prevCardId >= 0 then PlayingCards.getCardInfo(prevCardId).cardShortName else "INVALID"
+      console.log "cur card " + PlayingCards.getCardInfo(curCardId).cardShortName + ", prev " + prevCardStr
+      if prevCardId < 0 # The current card is a 2 or error
+        console.log "prev card is 2 or error"
+        break
+      # Find the card to the right of the prev card
+      [cardToRightId,prevCardRow,prevCardCol,cardRow,cardCol] = gameBoard.getCardToRightInfo(prevCardId)
+      if cardToRightId < 0 # The prev card is at the end of a row
+        console.log "prev card at end of row"
+        break
+      moveList.push [[curCardLocn[1], curCardLocn[2]],[cardRow,cardCol]]
+      curCardId = cardToRightId
+    return moveList
